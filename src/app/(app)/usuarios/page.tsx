@@ -40,11 +40,26 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    // Carga la lista recien despues de montar, una vez resuelta la sesion: setState dentro del
-    // callback async de loadUsers, no sincrono en el cuerpo del efecto.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!isSessionLoading && user?.role === "Admin") void loadUsers();
-  }, [isSessionLoading, loadUsers, user?.role]);
+    if (isSessionLoading || user?.role !== "Admin") return;
+
+    let isCurrent = true;
+    async function loadInitialUsers() {
+      try {
+        const staffUsers = await listStaff();
+        if (isCurrent) {
+          setUsers(staffUsers);
+          setLoadError("");
+        }
+      } catch (reason) {
+        if (isCurrent) setLoadError(reason instanceof UsuariosApiError ? reason.message : "No se pudo cargar la lista de usuarios.");
+      } finally {
+        if (isCurrent) setIsLoading(false);
+      }
+    }
+
+    void loadInitialUsers();
+    return () => { isCurrent = false; };
+  }, [isSessionLoading, user?.role]);
 
   function openNewUserModal() {
     setEditingUser(null);

@@ -10,6 +10,8 @@ export type TablePagination = {
   summary: string;
   currentPage: number;
   totalPages: number;
+  onPreviousPage?: () => void;
+  onNextPage?: () => void;
 };
 
 export type TableProps<T extends { id: string | number }> = {
@@ -48,9 +50,9 @@ export function Table<T extends { id: string | number }>({
         <footer className="flex flex-col gap-3 border-t border-border px-5 py-4 text-sm sm:flex-row sm:items-center sm:justify-between">
           <span className="text-text-secondary">{pagination.summary}</span>
           <div aria-label="Paginación" className="flex items-center gap-2">
-            <button aria-label="Página anterior" className="rounded-md border border-border px-3 py-1.5 text-text-secondary disabled:cursor-not-allowed disabled:opacity-50" disabled={pagination.currentPage === 1} type="button">Anterior</button>
+            <button aria-label="Página anterior" className="rounded-md border border-border px-3 py-1.5 text-text-secondary disabled:cursor-not-allowed disabled:opacity-50" disabled={pagination.currentPage === 1} onClick={pagination.onPreviousPage} type="button">Anterior</button>
             <span className="text-text">Página {pagination.currentPage} de {pagination.totalPages}</span>
-            <button aria-label="Página siguiente" className="rounded-md border border-border px-3 py-1.5 text-text-secondary disabled:cursor-not-allowed disabled:opacity-50" disabled={pagination.currentPage === pagination.totalPages} type="button">Siguiente</button>
+            <button aria-label="Página siguiente" className="rounded-md border border-border px-3 py-1.5 text-text-secondary disabled:cursor-not-allowed disabled:opacity-50" disabled={pagination.currentPage === pagination.totalPages} onClick={pagination.onNextPage} type="button">Siguiente</button>
           </div>
         </footer>
       ) : null}
