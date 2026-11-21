@@ -1,0 +1,2 @@
+import { NextResponse } from "next/server"; import { forwardInventoryRequest, readInventoryJson } from "../../proxy";
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) { const { id } = await params; const body = await readInventoryJson(request); return body ? forwardInventoryRequest(`/api/inventario/${id}/ajustar-stock`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }) : NextResponse.json({ message: "Solicitud inválida." }, { status: 400 }); }
