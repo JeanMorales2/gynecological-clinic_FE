@@ -1,6 +1,6 @@
 import type { ReactNode, SVGProps } from "react";
 
-export type IconName = "alert" | "bell" | "calendar" | "check" | "chevronDown" | "circle" | "clipboard" | "clock" | "cross" | "dashboard" | "document" | "flag" | "flask" | "flower" | "funnel" | "gift" | "info" | "inventory" | "menu" | "patients" | "plus" | "promotions" | "receipt" | "search" | "sparkles" | "theme" | "users" | "x";
+export type IconName = "alert" | "bell" | "calendar" | "check" | "chevronDown" | "circle" | "clipboard" | "clock" | "cross" | "dashboard" | "document" | "flag" | "flask" | "flower" | "funnel" | "gift" | "info" | "inventory" | "logout" | "menu" | "monitor" | "moon" | "patients" | "plus" | "promotions" | "receipt" | "search" | "sparkles" | "theme" | "users" | "x";
 
 export type IconProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
   name: IconName;
@@ -26,7 +26,10 @@ const paths: Record<IconName, ReactNode> = {
   gift: <><rect height="12" rx="1" width="16" x="4" y="9" /><path d="M12 9v12M3 9h18v4H3zM12 9H8a2 2 0 1 1 2-3c0 2 2 3 2 3ZM12 9h4a2 2 0 1 0-2-3c0 2-2 3-2 3Z" /></>,
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5m0-8h.01" /></>,
   inventory: <><path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 8-4V7m-8 4v10" /></>,
+  logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></>,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  monitor: <><rect height="12" rx="2" width="18" x="3" y="4" /><path d="M8 20h8M12 16v4" /></>,
+  moon: <path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5Z" />,
   patients: <><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 15c3.3 0 6 1.8 6 5" /></>,
   plus: <path d="M12 5v14M5 12h14" />,
   promotions: <><path d="M20 12V5h-7L4 14l6 6z" /><circle cx="16.5" cy="8.5" r="1" /><path d="m10 19 5-5" /></>,
