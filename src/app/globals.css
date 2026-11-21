@@ -50,3 +50,19 @@ body { background-color: var(--color-bg); color: var(--color-text); }
 .festive-icon { animation: festive-bob 2.6s ease-in-out infinite; }
 .festive-glow { animation: festive-glow 2.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .festive-icon, .festive-glow { animation: none; } }
+
+@keyframes festive-fall {
+  0% { transform: translate3d(0, -10vh, 0) translateX(0) rotate(0deg); }
+  100% { transform: translate3d(0, 110vh, 0) translateX(var(--festive-drift, 0px)) rotate(180deg); }
+}
+.festive-particle {
+  position: absolute;
+  top: 0;
+  border-radius: 9999px;
+  animation-name: festive-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.festive-particle--petal { border-radius: 0 60% 0 60%; }
+@media (prefers-reduced-motion: reduce) { .festive-particle { display: none; } }

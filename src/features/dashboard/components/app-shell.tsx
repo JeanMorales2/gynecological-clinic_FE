@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { BrandMark } from "@/components/brand-mark";
 import { Icon } from "@/components/ui";
+import { FestiveWeather } from "@/features/festive-theme";
 import { useSession } from "@/stores/session";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
@@ -52,5 +53,6 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
       </aside>
     </div> : null}
     <div className="flex min-w-0 flex-1 flex-col"><Topbar isSidebarOpen={isSidebarOpen} menuButtonRef={menuButtonRef} onOpenSidebar={() => setIsSidebarOpen(true)} />{children}</div>
+    <FestiveWeather />
   </div>;
 }

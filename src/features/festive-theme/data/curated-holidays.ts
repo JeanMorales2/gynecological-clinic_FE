@@ -18,7 +18,7 @@ const fixedHolidays: CuratedHolidayEntry[] = [
   { id: "independence", label: "Independencia de Nicaragua", icon: "flag", accentColor: "#2F6F8C", startMonth: 9, startDay: 14, endMonth: 9, endDay: 15 },
   { id: "palo-de-mayo", label: "Palo de Mayo", icon: "flower", accentColor: "#5C7E62", startMonth: 5, startDay: 1, endMonth: 5, endDay: 31 },
   { id: "day-of-the-cross", label: "Día de la Cruz", icon: "cross", accentColor: "#6E5A82", startMonth: 5, startDay: 3, endMonth: 5, endDay: 3 },
-  { id: "christmas", label: "Navidad y fin de año", icon: "gift", accentColor: "#54786A", startMonth: 12, startDay: 1, endMonth: 12, endDay: 31 },
+  { id: "christmas", label: "Navidad y fin de año", icon: "gift", accentColor: "#54786A", startMonth: 11, startDay: 1, endMonth: 12, endDay: 31 },
 ];
 
 /** Calculates Gregorian Easter using the Meeus/Jones/Butcher algorithm. */
