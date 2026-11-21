@@ -4,6 +4,7 @@ import type { ChangeEvent, RefObject } from "react";
 import { useRouter } from "next/navigation";
 import { Icon, Input, Select } from "@/components/ui";
 import { logout } from "@/features/auth/api/session";
+import { FestiveAccent } from "@/features/festive-theme";
 import { useSession } from "@/stores/session";
 import { type ThemePreference, useTheme } from "@/stores/theme";
 
@@ -28,6 +29,7 @@ export function Topbar({ isSidebarOpen, menuButtonRef, onOpenSidebar }: TopbarPr
       <div className="ml-auto flex items-center gap-1 sm:gap-3">
         <div className="hidden w-40 sm:block"><Select aria-label="Tema visual" label="Tema" onChange={handleThemeChange} options={themeOptions} value={theme} /></div>
         <div className="sm:hidden"><label className="sr-only" htmlFor="mobile-theme">Tema visual</label><select className="min-h-10 rounded-lg border border-border bg-surface px-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary" id="mobile-theme" onChange={handleThemeChange} value={theme}><option value="light">Claro</option><option value="dark">Oscuro</option><option value="auto">Auto</option></select></div>
+        <FestiveAccent variant="icon" />
         <button aria-label="Notificaciones" className="rounded-lg p-2 text-text-secondary hover:bg-bg hover:text-text focus:outline-none focus:ring-2 focus:ring-primary" type="button"><Icon name="bell" size={21} /></button>
         <details className="relative">
           <summary aria-label="Abrir menú de usuario" className="flex size-9 cursor-pointer list-none items-center justify-center rounded-full bg-accent-soft text-sm font-semibold text-accent-text focus:outline-none focus:ring-2 focus:ring-primary">{userInitial}</summary>

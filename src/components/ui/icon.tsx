@@ -1,6 +1,6 @@
 import type { ReactNode, SVGProps } from "react";
 
-export type IconName = "alert" | "bell" | "calendar" | "check" | "chevronDown" | "circle" | "clipboard" | "clock" | "dashboard" | "document" | "flask" | "funnel" | "info" | "inventory" | "menu" | "patients" | "plus" | "promotions" | "receipt" | "search" | "sparkles" | "theme" | "users" | "x";
+export type IconName = "alert" | "bell" | "calendar" | "check" | "chevronDown" | "circle" | "clipboard" | "clock" | "cross" | "dashboard" | "document" | "flag" | "flask" | "flower" | "funnel" | "gift" | "info" | "inventory" | "menu" | "patients" | "plus" | "promotions" | "receipt" | "search" | "sparkles" | "theme" | "users" | "x";
 
 export type IconProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
   name: IconName;
@@ -16,10 +16,14 @@ const paths: Record<IconName, ReactNode> = {
   circle: <circle cx="12" cy="12" r="8" />,
   clipboard: <><rect height="17" rx="2" width="14" x="5" y="4" /><path d="M9 4V3h6v1m-6 6h6m-6 4h6" /></>,
   clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+  cross: <><path d="M12 3v18M7 7h10" /><path d="M8.5 21h7" /></>,
   dashboard: <><rect height="7" rx="1" width="7" x="3" y="3" /><rect height="7" rx="1" width="7" x="14" y="3" /><rect height="7" rx="1" width="7" x="3" y="14" /><rect height="7" rx="1" width="7" x="14" y="14" /></>,
   document: <><path d="M7 3h7l3 3v15H7z" /><path d="M14 3v4h4M10 12h4m-4 4h4" /></>,
+  flag: <><path d="M5 21V4" /><path d="M5 5c4-3 7 3 14 0v9c-7 3-10-3-14 0" /></>,
   flask: <><path d="M9 3h6m-5 0v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3" /><path d="M8 15h8" /></>,
+  flower: <><circle cx="12" cy="9" r="2" /><path d="M12 11v10M12 7c-1-5-7-4-6-1s3 4 6 3M14 9c5-1 6-7 3-7s-4 3-3 7M10 10c-4 3-2 8 1 7s3-4 1-7M13 11c3 4 8 1 7-2s-4-2-7 0M8 21h8" /></>,
   funnel: <><path d="M4 5h16l-6 7v5l-4 2v-7z" /></>,
+  gift: <><rect height="12" rx="1" width="16" x="4" y="9" /><path d="M12 9v12M3 9h18v4H3zM12 9H8a2 2 0 1 1 2-3c0 2 2 3 2 3ZM12 9h4a2 2 0 1 0-2-3c0 2-2 3-2 3Z" /></>,
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5m0-8h.01" /></>,
   inventory: <><path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 8-4V7m-8 4v10" /></>,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
