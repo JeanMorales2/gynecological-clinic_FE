@@ -24,8 +24,8 @@ export function FestiveAccent({ variant }: { variant: "icon" | "banner" }) {
   };
 
   if (variant === "icon") {
-    return <span aria-label={active.label} className="inline-flex size-9 items-center justify-center rounded-lg border" style={accentStyle} title={active.label}><Icon name={active.icon} size={19} /></span>;
+    return <span aria-label={active.label} className="festive-glow inline-flex size-9 items-center justify-center rounded-lg border" style={accentStyle} title={active.label}><Icon className="festive-icon" name={active.icon} size={19} /></span>;
   }
 
-  return <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium" role="status" style={accentStyle}><Icon name={active.icon} size={18} /><span>{active.label}</span></div>;
+  return <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium" role="status" style={accentStyle}><Icon className="festive-icon" name={active.icon} size={18} /><span>{active.label}</span></div>;
 }

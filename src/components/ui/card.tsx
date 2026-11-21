@@ -14,14 +14,14 @@ export function Card({ children, title, action, className = "", contentClassName
   const hasHeader = title || action;
 
   return (
-    <section className={`${allowOverflow ? "overflow-visible" : "overflow-hidden"} rounded-xl border border-border bg-surface ${className}`}>
+    <section className={`${allowOverflow ? "overflow-visible" : "overflow-hidden"} rounded-xl bg-surface shadow-sm ${className}`}>
       {hasHeader ? (
-        <header className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
+        <header className="flex items-center justify-between gap-4 px-5 pb-3 pt-5">
           {title ? <h2 className="text-lg font-semibold text-text">{title}</h2> : <span />}
           {action ? <div className="shrink-0">{action}</div> : null}
         </header>
       ) : null}
-      <div className={`p-5 ${contentClassName}`}>{children}</div>
+      <div className={`px-5 pb-5 ${hasHeader ? "" : "pt-5"} ${contentClassName}`}>{children}</div>
     </section>
   );
 }

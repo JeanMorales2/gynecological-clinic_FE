@@ -44,3 +44,9 @@
 
 html, body { margin: 0; min-height: 100%; }
 body { background-color: var(--color-bg); color: var(--color-text); }
+
+@keyframes festive-bob { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-2px) rotate(-4deg); } }
+@keyframes festive-glow { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 35%, transparent); } 50% { box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 0%, transparent); } }
+.festive-icon { animation: festive-bob 2.6s ease-in-out infinite; }
+.festive-glow { animation: festive-glow 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .festive-icon, .festive-glow { animation: none; } }
