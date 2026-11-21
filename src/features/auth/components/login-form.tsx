@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BrandMark } from "@/components/brand-mark";
 import { Button, Card, Input } from "@/components/ui";
 import { LoginError, login } from "../api/session";
 import { useSession } from "@/stores/session";
@@ -24,12 +25,15 @@ export function LoginForm() {
     } finally { setIsSubmitting(false); }
   }
 
-  return <Card className="w-full max-w-md shadow-sm">
-    <div className="mb-6 space-y-2"><p className="text-sm font-medium text-accent-text">Clínica ginecológica</p><h1 className="text-2xl font-semibold tracking-tight text-text">Iniciar sesión</h1><p className="text-sm text-text-secondary">Ingresá con las credenciales de tu cuenta.</p></div>
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <Input autoComplete="email" error={error ? "Revisá tus credenciales e intentá de nuevo." : undefined} label="Correo electrónico" onChange={(event) => setEmail(event.target.value)} required type="email" value={email} />
-      <Input autoComplete="current-password" label="Contraseña" onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
-      <Button className="w-full" disabled={isSubmitting} type="submit">{isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}</Button>
-    </form>
-  </Card>;
+  return <div className="w-full max-w-md space-y-6">
+    <div className="flex justify-center"><BrandMark priority width={180} /></div>
+    <Card className="shadow-sm">
+      <div className="mb-6 space-y-2"><h1 className="text-2xl font-semibold tracking-tight text-text">Iniciar sesión</h1><p className="text-sm text-text-secondary">Ingresá con las credenciales de tu cuenta.</p></div>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <Input autoComplete="email" error={error ? "Revisá tus credenciales e intentá de nuevo." : undefined} label="Correo electrónico" onChange={(event) => setEmail(event.target.value)} required type="email" value={email} />
+        <Input autoComplete="current-password" label="Contraseña" onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
+        <Button className="w-full" disabled={isSubmitting} type="submit">{isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}</Button>
+      </form>
+    </Card>
+  </div>;
 }

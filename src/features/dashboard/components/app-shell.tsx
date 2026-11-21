@@ -1,12 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { BrandMark } from "@/components/brand-mark";
 import { Icon } from "@/components/ui";
+import { useSession } from "@/stores/session";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 
 const focusableSelector = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
+
+function BootSplash() {
+  return <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg" role="status">
+    <BrandMark priority width={160} />
+    <div aria-hidden="true" className="size-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+    <span className="sr-only">Cargando sesión...</span>
+  </div>;
+}
+
 export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
+  const { isLoading: isSessionLoading } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -29,6 +41,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
     if (event.shiftKey && document.activeElement === firstElement) { event.preventDefault(); lastElement.focus(); }
     else if (!event.shiftKey && document.activeElement === lastElement) { event.preventDefault(); firstElement.focus(); }
   }
+  if (isSessionLoading) return <BootSplash />;
   return <div className="flex min-h-screen bg-bg">
     <div className="hidden w-72 shrink-0 lg:block"><Sidebar className="fixed inset-y-0 left-0 z-30" /></div>
     {isSidebarOpen ? <div className="fixed inset-0 z-40 lg:hidden">
