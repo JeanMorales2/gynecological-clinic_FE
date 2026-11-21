@@ -1,0 +1,9 @@
+export type InvoiceStatus = "Pendiente" | "Pagada" | "Anulada";
+export type InvoiceItem = { concepto: string; cantidad: number; precioUnitario: number };
+export type Invoice = { id: string; patientId: string; appointmentId: string | null; numeroFactura: string; fecha: string; items: InvoiceItem[]; montoTotal: number; estado: InvoiceStatus; metodoPago: string | null; fechaPago: string | null };
+export type PagedInvoices = { items: Invoice[]; totalCount: number; page: number; pageSize: number };
+export class FacturacionApiError extends Error { constructor(message: string, readonly status: number) { super(message); } }
+async function request<T>(url: string, init?: RequestInit): Promise<T> { const response = await fetch(url, { ...init, cache: "no-store" }); const payload: unknown = await response.json().catch(() => null); if (!response.ok) { const message = payload && typeof payload === "object" && "message" in payload && typeof payload.message === "string" ? payload.message : "No se pudo completar la operación."; throw new FacturacionApiError(message, response.status); } return payload as T; }
+export function listInvoices(patientId?: string, estado?: InvoiceStatus) { const query = new URLSearchParams({ page: "1", pageSize: "100" }); if (patientId) query.set("patientId", patientId); if (estado) query.set("estado", estado); return request<PagedInvoices>(`/api/facturacion?${query}`); }
+export function createInvoice(input: { patientId: string; appointmentId: string | null; items: InvoiceItem[] }) { return request<Invoice>("/api/facturacion", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) }); }
+export function markInvoicePaid(id: string, metodoPago: string) { return request<Invoice>(`/api/facturacion/${id}/pagar`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ metodoPago }) }); }
