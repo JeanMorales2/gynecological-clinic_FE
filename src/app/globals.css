@@ -16,6 +16,9 @@
   /* Semánticos */
   --color-success: #2E7D32; --color-success-bg: #E8F5E9; --color-warning: #B26A00; --color-warning-bg: #FFF4E0;
   --color-danger: #C62828; --color-danger-bg: #FDECEA; --color-info: #1565C0; --color-info-bg: #E3F0FB;
+
+  /* Clima festivo */
+  --festive-snow-color: #8FB7D1;
 }
 
 :root[data-theme="dark"] {
@@ -27,6 +30,7 @@
   --color-text: #F9E1E1; --color-text-secondary: #C3A5A8; --color-text-muted: #8E7376;
   --color-success: #66BB6A; --color-success-bg: #1B3320; --color-warning: #F0A73A; --color-warning-bg: #3A2A10;
   --color-danger: #EF7A72; --color-danger-bg: #3D1A18; --color-info: #64A8EE; --color-info-bg: #142A40;
+  --festive-snow-color: #FFFFFF;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,6 +43,7 @@
     --color-text: #F9E1E1; --color-text-secondary: #C3A5A8; --color-text-muted: #8E7376;
     --color-success: #66BB6A; --color-success-bg: #1B3320; --color-warning: #F0A73A; --color-warning-bg: #3A2A10;
     --color-danger: #EF7A72; --color-danger-bg: #3D1A18; --color-info: #64A8EE; --color-info-bg: #142A40;
+    --festive-snow-color: #FFFFFF;
   }
 }
 
@@ -65,4 +70,5 @@ body { background-color: var(--color-bg); color: var(--color-text); }
   will-change: transform;
 }
 .festive-particle--petal { border-radius: 0 60% 0 60%; }
+.festive-particle--snow { box-shadow: 0 0 3px rgba(0, 0, 0, 0.12); }
 @media (prefers-reduced-motion: reduce) { .festive-particle { display: none; } }
