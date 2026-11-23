@@ -2,7 +2,11 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-export type AuthUser = { id: string; email: string; role: string };
+export type AuthUser = { id: string; email: string; role: string; permisos: string[] };
+
+export function hasPermission(user: AuthUser | null, key: string): boolean {
+  return user?.permisos.includes(key) ?? false;
+}
 
 type SessionContextValue = {
   user: AuthUser | null;

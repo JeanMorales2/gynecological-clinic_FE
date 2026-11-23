@@ -15,7 +15,7 @@ import {
   type InvoiceStatus,
   voidInvoice,
 } from "@/features/facturacion";
-import { useSession } from "@/stores/session";
+import { hasPermission, useSession } from "@/stores/session";
 export default function Page() {
   const { user } = useSession();
   const [patient, setPatient] = useState<Pick<
@@ -28,7 +28,7 @@ export default function Page() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const canManage = user?.role === "Admin" || user?.role === "Recepcionista";
+  const canManage = hasPermission(user, "facturacion.gestionar");
   function close() {
     if (!submitting) {
       setMode(null);

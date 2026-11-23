@@ -14,7 +14,7 @@ import {
   type StaffUser,
   type UsuarioFormValues,
 } from "@/features/usuarios";
-import { useSession } from "@/stores/session";
+import { hasPermission, useSession } from "@/stores/session";
 
 export default function Page() {
   const { isLoading: isSessionLoading, user } = useSession();
@@ -45,7 +45,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    if (isSessionLoading || user?.role !== "Admin") return;
+    if (isSessionLoading || !hasPermission(user, "usuarios.gestionar")) return;
 
     let isCurrent = true;
     async function loadInitialUsers() {
@@ -71,7 +71,7 @@ export default function Page() {
     return () => {
       isCurrent = false;
     };
-  }, [isSessionLoading, user?.role]);
+  }, [isSessionLoading, user]);
 
   function openNewUserModal() {
     setEditingUser(null);
@@ -192,7 +192,7 @@ export default function Page() {
     );
   }
 
-  if (user?.role !== "Admin") {
+  if (!hasPermission(user, "usuarios.gestionar")) {
     return (
       <Card className="max-w-xl">
         <div className="flex items-start gap-3">

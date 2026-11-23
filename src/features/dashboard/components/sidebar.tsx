@@ -10,14 +10,14 @@ import {
   getCuratedHolidays,
   useFestivePreview,
 } from "@/features/festive-theme";
-import { useSession } from "@/stores/session";
+import { hasPermission, useSession } from "@/stores/session";
 import { type ThemePreference, useTheme } from "@/stores/theme";
 
 type NavigationItem = {
   href: string;
   label: string;
   icon: IconName;
-  adminOnly?: boolean;
+  requiredPermission?: string;
 };
 const navigation: NavigationItem[] = [
   { href: "/", label: "Dashboard", icon: "dashboard" },
@@ -33,9 +33,9 @@ const navigation: NavigationItem[] = [
     href: "/usuarios",
     label: "Usuarios y roles",
     icon: "users",
-    adminOnly: true,
+    requiredPermission: "usuarios.gestionar",
   },
-  { href: "/notificaciones", label: "Notificaciones", icon: "bell" },
+  { href: "/notificaciones", label: "Notificaciones", icon: "bell", requiredPermission: "notificaciones.gestionar" },
 ];
 
 const themeCycle: ThemePreference[] = ["light", "dark", "auto"];
@@ -58,7 +58,7 @@ export function Sidebar({ className = "", onNavigate }: SidebarProps) {
   const { theme, setTheme } = useTheme();
   const { preview, setPreview } = useFestivePreview();
   const visibleNavigation = navigation.filter(
-    (item) => !item.adminOnly || user?.role === "Admin",
+    (item) => !item.requiredPermission || hasPermission(user, item.requiredPermission),
   );
 
   const demoHolidays = getCuratedHolidays(new Date().getFullYear()).sort(

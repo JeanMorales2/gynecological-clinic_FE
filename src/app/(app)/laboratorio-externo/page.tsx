@@ -15,7 +15,7 @@ import {
   type LabOrder,
   type LabOrderFormValues,
 } from "@/features/laboratorio-externo";
-import { useSession } from "@/stores/session";
+import { hasPermission, useSession } from "@/stores/session";
 export default function Page() {
   const { user } = useSession();
   const [patient, setPatient] = useState<Pick<
@@ -27,7 +27,7 @@ export default function Page() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const canManage = user?.role === "Admin" || user?.role === "Ginecologa";
+  const canManage = hasPermission(user, "laboratorio.gestionar");
   function close() {
     if (!submitting) {
       setMode(null);

@@ -5,7 +5,7 @@ import { Button, Card, Icon, Modal } from "@/components/ui";
 import { PatientSearchPicker } from "@/components/patient-search-picker";
 import type { Patient } from "@/features/pacientes";
 import { clinicalHistoryPdfDownloadUrl, ClinicalEntryForm, ClinicalTimeline, createClinicalEntry, HistoriaClinicaApiError, updateClinicalEntry, type ClinicalEntry, type ClinicalEntryFormValues } from "@/features/historia-clinica";
-import { useSession } from "@/stores/session";
+import { hasPermission, useSession } from "@/stores/session";
 
 export default function Page() {
   const { user } = useSession();
@@ -15,7 +15,7 @@ export default function Page() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const canManage = user?.role === "Admin" || user?.role === "Ginecologa";
+  const canManage = hasPermission(user, "historia_clinica.gestionar");
 
   function openNewModal() { setEditingEntry(null); setFormError(""); setIsModalOpen(true); }
   function openEditModal(entry: ClinicalEntry) { setEditingEntry(entry); setFormError(""); setIsModalOpen(true); }
