@@ -18,6 +18,7 @@ type NavigationItem = {
   label: string;
   icon: IconName;
   requiredPermission?: string;
+  adminOnly?: boolean;
 };
 const navigation: NavigationItem[] = [
   { href: "/", label: "Dashboard", icon: "dashboard" },
@@ -34,6 +35,12 @@ const navigation: NavigationItem[] = [
     label: "Usuarios y roles",
     icon: "users",
     requiredPermission: "usuarios.gestionar",
+  },
+  {
+    href: "/permisos",
+    label: "Roles y permisos",
+    icon: "document",
+    adminOnly: true,
   },
   { href: "/notificaciones", label: "Notificaciones", icon: "bell", requiredPermission: "notificaciones.gestionar" },
 ];
@@ -58,7 +65,9 @@ export function Sidebar({ className = "", onNavigate }: SidebarProps) {
   const { theme, setTheme } = useTheme();
   const { preview, setPreview } = useFestivePreview();
   const visibleNavigation = navigation.filter(
-    (item) => !item.requiredPermission || hasPermission(user, item.requiredPermission),
+    (item) =>
+      (!item.requiredPermission || hasPermission(user, item.requiredPermission)) &&
+      (!item.adminOnly || user?.role === "Admin"),
   );
 
   const demoHolidays = getCuratedHolidays(new Date().getFullYear()).sort(
