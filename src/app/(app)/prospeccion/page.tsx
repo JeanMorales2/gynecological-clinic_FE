@@ -6,6 +6,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import {
   convertProspect,
   createProspect,
+  inviteProspect,
   listProspects,
   ProspectoForm,
   ProspectosApiError,
@@ -46,6 +47,7 @@ export default function Page() {
   const [convertingProspect, setConvertingProspect] = useState<Prospect | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [inviteMessage, setInviteMessage] = useState("");
 
   useEffect(() => {
     let isCurrent = true;
@@ -104,6 +106,17 @@ export default function Page() {
     } finally { setIsSubmitting(false); }
   }
 
+  async function handleInvite(prospect: Prospect) {
+    setInviteMessage("");
+    try {
+      await inviteProspect(prospect.id);
+      setInviteMessage("La invitación por correo se procesó correctamente.");
+      reload();
+    } catch (reason) {
+      setInviteMessage(reason instanceof ProspectosApiError ? reason.message : "No se pudo procesar la invitación por correo.");
+    }
+  }
+
   const totalPages = Math.max(1, Math.ceil(result.totalCount / pageSize));
   return <div className="space-y-6">
     <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
@@ -114,8 +127,9 @@ export default function Page() {
       </div>
       <Button leadingIcon={<Icon name="plus" size={18} />} onClick={openNewProspectModal}>Nuevo prospecto</Button>
     </div>
+    {inviteMessage ? <Card><p className="text-sm text-text-secondary" role="status">{inviteMessage}</p></Card> : null}
     {loadError ? <Card><div className="space-y-3"><p className="text-sm text-danger" role="alert">{loadError}</p><Button onClick={reload} variant="outline">Reintentar</Button></div></Card> : null}
-    {!loadError ? (isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando prospectos...</p> : <ProspectosTable onConvert={openConvertModal} onEdit={openEditProspectModal} onNextPage={() => setPage((current) => Math.min(current + 1, totalPages))} onPreviousPage={() => setPage((current) => Math.max(current - 1, 1))} page={result.page} pageSize={result.pageSize} prospects={result.items} totalCount={result.totalCount} />) : null}
+    {!loadError ? (isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando prospectos...</p> : <ProspectosTable onConvert={openConvertModal} onEdit={openEditProspectModal} onInvite={(prospect) => void handleInvite(prospect)} onNextPage={() => setPage((current) => Math.min(current + 1, totalPages))} onPreviousPage={() => setPage((current) => Math.max(current - 1, 1))} page={result.page} pageSize={result.pageSize} prospects={result.items} totalCount={result.totalCount} />) : null}
     <Modal isOpen={isProspectModalOpen} onClose={closeProspectModal} title={editingProspect ? "Editar prospecto" : "Nuevo prospecto"}>
       <ProspectoForm isSubmitting={isSubmitting} key={editingProspect?.id ?? "new"} onCancel={closeProspectModal} onSubmit={handleProspectSubmit} prospect={editingProspect} submitError={formError} />
     </Modal>

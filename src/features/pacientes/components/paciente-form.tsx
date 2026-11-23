@@ -5,12 +5,18 @@ import { Badge, Button, Icon, Input, Tabs } from "@/components/ui";
 import { todayInClinicTimezone } from "@/lib/dates";
 import type { Patient, PatientInput } from "../api";
 
+type ReferidoInput = {
+  nombreCompleto: string;
+  telefono: string;
+  telefonoAlternativo: string | null;
+};
+
 type PacienteFormProps = {
   patient: Patient | null;
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
-  onSubmit: (values: PatientInput) => Promise<void>;
+  onSubmit: (values: PatientInput, referidos?: ReferidoInput[]) => Promise<void>;
 };
 
 export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submitError }: PacienteFormProps) {
@@ -21,6 +27,12 @@ export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submit
   const [documentoIdentidad, setDocumentoIdentidad] = useState(patient?.documentoIdentidad ?? "");
   const [alergias, setAlergias] = useState(patient?.alergias ?? "");
   const [antecedentesRelevantes, setAntecedentesRelevantes] = useState(patient?.antecedentesRelevantes ?? "");
+  const [referido1NombreCompleto, setReferido1NombreCompleto] = useState("");
+  const [referido1Telefono, setReferido1Telefono] = useState("");
+  const [referido1TelefonoAlternativo, setReferido1TelefonoAlternativo] = useState("");
+  const [referido2NombreCompleto, setReferido2NombreCompleto] = useState("");
+  const [referido2Telefono, setReferido2Telefono] = useState("");
+  const [referido2TelefonoAlternativo, setReferido2TelefonoAlternativo] = useState("");
   const [validationError, setValidationError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -30,7 +42,7 @@ export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submit
       return;
     }
     setValidationError("");
-    await onSubmit({
+    const values = {
       nombreCompleto: nombreCompleto.trim(),
       fechaNacimiento,
       telefono: telefono.trim(),
@@ -38,7 +50,16 @@ export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submit
       documentoIdentidad: documentoIdentidad.trim() || null,
       alergias: alergias.trim() || null,
       antecedentesRelevantes: antecedentesRelevantes.trim() || null,
-    });
+    };
+    const referidos = !patient ? [
+      { nombreCompleto: referido1NombreCompleto, telefono: referido1Telefono, telefonoAlternativo: referido1TelefonoAlternativo },
+      { nombreCompleto: referido2NombreCompleto, telefono: referido2Telefono, telefonoAlternativo: referido2TelefonoAlternativo },
+    ].filter((referido) => referido.nombreCompleto.trim() && referido.telefono.trim()).map((referido) => ({
+      nombreCompleto: referido.nombreCompleto.trim(),
+      telefono: referido.telefono.trim(),
+      telefonoAlternativo: referido.telefonoAlternativo.trim() || null,
+    })) : undefined;
+    await onSubmit(values, referidos);
   }
 
   const error = validationError || submitError;
@@ -71,6 +92,28 @@ export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submit
           </label>
         </div>,
       },
+      ...(!patient ? [{
+        label: "Personas referidas",
+        value: "referidos",
+        content: <div className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-text">Referido 1</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2"><Input label="Nombre completo" onChange={(event) => setReferido1NombreCompleto(event.target.value)} value={referido1NombreCompleto} /></div>
+              <Input label="Teléfono principal" onChange={(event) => setReferido1Telefono(event.target.value)} type="tel" value={referido1Telefono} />
+              <Input label="Teléfono alternativo (opcional)" onChange={(event) => setReferido1TelefonoAlternativo(event.target.value)} type="tel" value={referido1TelefonoAlternativo} />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-text">Referido 2</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2"><Input label="Nombre completo" onChange={(event) => setReferido2NombreCompleto(event.target.value)} value={referido2NombreCompleto} /></div>
+              <Input label="Teléfono principal" onChange={(event) => setReferido2Telefono(event.target.value)} type="tel" value={referido2Telefono} />
+              <Input label="Teléfono alternativo (opcional)" onChange={(event) => setReferido2TelefonoAlternativo(event.target.value)} type="tel" value={referido2TelefonoAlternativo} />
+            </div>
+          </div>
+        </div>,
+      }] : []),
     ]} />
     <div className="flex flex-wrap justify-end gap-3 pt-2">
       <Button disabled={isSubmitting} onClick={onCancel} variant="outline">Cancelar</Button>

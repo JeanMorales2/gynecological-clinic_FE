@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { Button, Card, Icon, Input, Modal } from "@/components/ui";
 import { useDebounce } from "@/hooks/use-debounce";
 import { createPatient, deactivatePatient, listPatients, PacienteForm, PacientesApiError, PacientesTable, updatePatient, type PagedPatients, type Patient, type PatientInput } from "@/features/pacientes";
+import { createProspect, ProspectosApiError } from "@/features/prospeccion";
+
+type ReferidoInput = {
+  nombreCompleto: string;
+  telefono: string;
+  telefonoAlternativo: string | null;
+};
 
 const pageSize = 10;
 const emptyResult: PagedPatients = { items: [], totalCount: 0, page: 1, pageSize };
@@ -46,11 +53,29 @@ export default function Page() {
   function openEditPatientModal(patient: Patient) { setEditingPatient(patient); setFormError(""); setIsModalOpen(true); }
   function closeModal() { if (!isSubmitting) { setIsModalOpen(false); setFormError(""); } }
 
-  async function handleSubmit(values: PatientInput) {
+  async function handleSubmit(values: PatientInput, referidos?: ReferidoInput[]) {
     setIsSubmitting(true);
     setFormError("");
     try {
-      if (editingPatient) await updatePatient(editingPatient.id, values); else await createPatient(values);
+      if (editingPatient) {
+        await updatePatient(editingPatient.id, values);
+      } else {
+        const patient = await createPatient(values);
+        if (referidos?.length) {
+          const outcomes = await Promise.allSettled(referidos.map((referido) => createProspect({
+            nombreCompleto: referido.nombreCompleto,
+            telefono: referido.telefono,
+            telefonoAlternativo: referido.telefonoAlternativo,
+            email: null,
+            fuente: `Referido por ${patient.nombreCompleto}`,
+            notas: null,
+          })));
+          const errors = outcomes.flatMap((outcome) => outcome.status === "rejected"
+            ? [outcome.reason instanceof ProspectosApiError ? outcome.reason.message : "No se pudo crear uno de los referidos."]
+            : []);
+          if (errors.length) setActionError(`El paciente se creó, pero hubo problemas al registrar referidos: ${errors.join(" ")}`);
+        }
+      }
       setIsModalOpen(false);
       setPage(1);
       reload();

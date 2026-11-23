@@ -22,6 +22,7 @@ const editableStates: { label: string; value: ProspectStatus }[] = [
 export function ProspectoForm({ isSubmitting, onCancel, onSubmit, prospect, submitError }: ProspectoFormProps) {
   const [nombreCompleto, setNombreCompleto] = useState(prospect?.nombreCompleto ?? "");
   const [telefono, setTelefono] = useState(prospect?.telefono ?? "");
+  const [telefonoAlternativo, setTelefonoAlternativo] = useState(prospect?.telefonoAlternativo ?? "");
   const [email, setEmail] = useState(prospect?.email ?? "");
   const [fuente, setFuente] = useState(prospect?.fuente ?? "");
   const [estado, setEstado] = useState<ProspectStatus>(prospect?.estado ?? "Nuevo");
@@ -38,6 +39,7 @@ export function ProspectoForm({ isSubmitting, onCancel, onSubmit, prospect, subm
     const sharedValues = {
       nombreCompleto: nombreCompleto.trim(),
       telefono: telefono.trim(),
+      telefonoAlternativo: telefonoAlternativo.trim() || null,
       email: email.trim() || null,
       fuente: fuente.trim() || null,
       notas: notas.trim() || null,
@@ -51,6 +53,7 @@ export function ProspectoForm({ isSubmitting, onCancel, onSubmit, prospect, subm
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2"><Input autoComplete="name" label="Nombre completo" onChange={(event) => setNombreCompleto(event.target.value)} required value={nombreCompleto} /></div>
       <Input autoComplete="tel" label="Teléfono" onChange={(event) => setTelefono(event.target.value)} required type="tel" value={telefono} />
+      <Input autoComplete="tel" label="Teléfono alternativo (opcional)" onChange={(event) => setTelefonoAlternativo(event.target.value)} type="tel" value={telefonoAlternativo} />
       <Input autoComplete="email" label="Correo electrónico" onChange={(event) => setEmail(event.target.value)} type="email" value={email} />
       <Input label="Fuente" onChange={(event) => setFuente(event.target.value)} placeholder="Ej.: Redes sociales" value={fuente} />
       {prospect ? <Select label="Estado" onChange={(event) => setEstado(event.target.value as ProspectStatus)} options={editableStates} value={estado} /> : null}

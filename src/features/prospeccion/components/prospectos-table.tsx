@@ -10,6 +10,7 @@ type ProspectosTableProps = {
   pageSize: number;
   onEdit: (prospect: Prospect) => void;
   onConvert: (prospect: Prospect) => void;
+  onInvite: (prospect: Prospect) => void;
   onPreviousPage: () => void;
   onNextPage: () => void;
 };
@@ -22,7 +23,7 @@ const statusPresentation: Record<ProspectStatus, { tone: BadgeTone; icon: IconNa
   Perdido: { tone: "neutral", icon: "circle" },
 };
 
-export function ProspectosTable({ onConvert, onEdit, onNextPage, onPreviousPage, page, pageSize, prospects, totalCount }: ProspectosTableProps) {
+export function ProspectosTable({ onConvert, onEdit, onInvite, onNextPage, onPreviousPage, page, pageSize, prospects, totalCount }: ProspectosTableProps) {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const start = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalCount);
@@ -44,6 +45,7 @@ export function ProspectosTable({ onConvert, onEdit, onNextPage, onPreviousPage,
       render: (prospect) => (
         <div className="flex items-center gap-2">
           <Button aria-label={`Editar a ${prospect.nombreCompleto}`} disabled={prospect.estado === "Convertido"} onClick={() => onEdit(prospect)} size="sm" variant="ghost">Editar</Button>
+          {prospect.email && prospect.estado !== "Convertido" ? <Button aria-label={`Invitar por correo a ${prospect.nombreCompleto}`} onClick={() => onInvite(prospect)} size="sm" variant="ghost">Invitar por correo</Button> : null}
           {prospect.estado !== "Convertido" ? <Button aria-label={`Convertir a ${prospect.nombreCompleto} en paciente`} onClick={() => onConvert(prospect)} size="sm" variant="outline">Convertir a paciente</Button> : null}
         </div>
       ),

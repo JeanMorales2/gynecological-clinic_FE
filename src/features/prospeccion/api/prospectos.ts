@@ -5,6 +5,7 @@ export type Prospect = {
   id: string;
   nombreCompleto: string;
   telefono: string;
+  telefonoAlternativo: string | null;
   email: string | null;
   fuente: string | null;
   estado: ProspectStatus;
@@ -20,7 +21,7 @@ export type PagedProspects = {
   pageSize: number;
 };
 
-export type ProspectInput = Pick<Prospect, "nombreCompleto" | "telefono" | "email" | "fuente" | "estado" | "notas">;
+export type ProspectInput = Pick<Prospect, "nombreCompleto" | "telefono" | "telefonoAlternativo" | "email" | "fuente" | "estado" | "notas">;
 export type NewProspectInput = Omit<ProspectInput, "estado">;
 export type ConvertProspectInput = {
   fechaNacimiento: string;
@@ -76,4 +77,8 @@ export function convertProspect(id: string, input: ConvertProspectInput) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
+}
+
+export function inviteProspect(id: string) {
+  return request<Prospect>(`/api/prospectos/${encodeURIComponent(id)}/invitar`, { method: "POST" });
 }
