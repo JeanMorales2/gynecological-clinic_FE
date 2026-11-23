@@ -32,6 +32,11 @@ export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onSubmit, sub
   const [hallazgos, setHallazgos] = useState(entry?.hallazgos ?? "");
   const [diagnostico, setDiagnostico] = useState(entry?.diagnostico ?? "");
   const [indicaciones, setIndicaciones] = useState(entry?.indicaciones ?? "");
+  const [tratamiento, setTratamiento] = useState(entry?.tratamiento ?? "");
+  const [medicamentos, setMedicamentos] = useState(entry?.medicamentos ?? "");
+  const [examenes, setExamenes] = useState(entry?.examenes ?? "");
+  const [pesoKg, setPesoKg] = useState(entry?.pesoKg?.toString() ?? "");
+  const [alturaCm, setAlturaCm] = useState(entry?.alturaCm?.toString() ?? "");
   const [validationError, setValidationError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -41,7 +46,7 @@ export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onSubmit, sub
       return;
     }
     setValidationError("");
-    await onSubmit({ tipo, fecha, motivo: motivo.trim(), hallazgos: hallazgos.trim(), diagnostico: diagnostico.trim() || null, indicaciones: indicaciones.trim() || null });
+    await onSubmit({ tipo, fecha, motivo: motivo.trim(), hallazgos: hallazgos.trim(), diagnostico: diagnostico.trim() || null, indicaciones: indicaciones.trim() || null, tratamiento: tratamiento.trim() || null, medicamentos: medicamentos.trim() || null, examenes: examenes.trim() || null, pesoKg: pesoKg.trim() ? Number(pesoKg) : null, alturaCm: alturaCm.trim() ? Number(alturaCm) : null });
   }
 
   const error = validationError || submitError;
@@ -55,6 +60,10 @@ export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onSubmit, sub
     <label className="block space-y-2 text-sm font-medium text-text"><span>Hallazgos</span><textarea className="min-h-28 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={8000} onChange={(event) => setHallazgos(event.target.value)} placeholder="Lo observado o registrado" required value={hallazgos} /></label>
     <label className="block space-y-2 text-sm font-medium text-text"><span>Diagnóstico <span className="font-normal text-text-secondary">(opcional)</span></span><textarea className="min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={4000} onChange={(event) => setDiagnostico(event.target.value)} value={diagnostico} /></label>
     <label className="block space-y-2 text-sm font-medium text-text"><span>Indicaciones <span className="font-normal text-text-secondary">(opcional)</span></span><textarea className="min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={4000} onChange={(event) => setIndicaciones(event.target.value)} value={indicaciones} /></label>
+    <label className="block space-y-2 text-sm font-medium text-text"><span>Tratamiento <span className="font-normal text-text-secondary">(opcional)</span></span><textarea className="min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={4000} onChange={(event) => setTratamiento(event.target.value)} value={tratamiento} /></label>
+    <label className="block space-y-2 text-sm font-medium text-text"><span>Medicamentos <span className="font-normal text-text-secondary">(opcional)</span></span><textarea className="min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={4000} onChange={(event) => setMedicamentos(event.target.value)} value={medicamentos} /></label>
+    <label className="block space-y-2 text-sm font-medium text-text"><span>Exámenes <span className="font-normal text-text-secondary">(opcional)</span></span><textarea className="min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={4000} onChange={(event) => setExamenes(event.target.value)} value={examenes} /></label>
+    <div className="grid gap-4 sm:grid-cols-2"><Input label="Peso (kg)" onChange={(event) => setPesoKg(event.target.value)} step="0.1" type="number" value={pesoKg} /><Input label="Altura (cm)" onChange={(event) => setAlturaCm(event.target.value)} step="0.1" type="number" value={alturaCm} /></div>
     <div className="flex flex-wrap justify-end gap-3 pt-2"><Button disabled={isSubmitting} onClick={onCancel} variant="outline">Cancelar</Button><Button disabled={isSubmitting} type="submit">{isSubmitting ? "Guardando..." : entry ? "Guardar corrección" : "Guardar entrada"}</Button></div>
   </form>;
 }

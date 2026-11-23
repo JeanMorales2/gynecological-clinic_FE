@@ -7,6 +7,9 @@ export type Patient = {
   documentoIdentidad: string | null;
   alergias: string | null;
   antecedentesRelevantes: string | null;
+  enfermedadesCronicas: string | null;
+  etsIts: string | null;
+  vicios: string | null;
   activo: boolean;
   createdAtUtc: string;
 };
@@ -19,6 +22,14 @@ export type PagedPatients = {
 };
 
 export type PatientInput = Omit<Patient, "id" | "activo" | "createdAtUtc">;
+
+export type FamilyMedicalHistory = {
+  id: string;
+  patientId: string;
+  condicion: string;
+  parentesco: string;
+  createdAtUtc: string;
+};
 
 export class PacientesApiError extends Error {
   constructor(message: string, readonly status: number) {
@@ -62,4 +73,20 @@ export function updatePatient(id: string, input: PatientInput) {
 
 export function deactivatePatient(id: string) {
   return request<Patient>(`/api/pacientes/${encodeURIComponent(id)}/desactivar`, { method: "POST" });
+}
+
+export function listFamilyMedicalHistory(patientId: string) {
+  return request<FamilyMedicalHistory[]>(`/api/pacientes/${encodeURIComponent(patientId)}/antecedentes-familiares`);
+}
+
+export function addFamilyMedicalHistory(patientId: string, input: { condicion: string; parentesco: string }) {
+  return request<FamilyMedicalHistory>(`/api/pacientes/${encodeURIComponent(patientId)}/antecedentes-familiares`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function removeFamilyMedicalHistory(patientId: string, id: string) {
+  return request<void>(`/api/pacientes/${encodeURIComponent(patientId)}/antecedentes-familiares/${encodeURIComponent(id)}`, { method: "DELETE" });
 }

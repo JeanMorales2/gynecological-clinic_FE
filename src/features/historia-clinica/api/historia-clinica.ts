@@ -9,6 +9,11 @@ export type ClinicalEntry = {
   hallazgos: string;
   diagnostico: string | null;
   indicaciones: string | null;
+  tratamiento: string | null;
+  medicamentos: string | null;
+  examenes: string | null;
+  pesoKg: number | null;
+  alturaCm: number | null;
   registradoPorId: string;
   createdAtUtc: string;
 };
@@ -21,6 +26,11 @@ export type ClinicalEntryInput = {
   hallazgos: string;
   diagnostico: string | null;
   indicaciones: string | null;
+  tratamiento: string | null;
+  medicamentos: string | null;
+  examenes: string | null;
+  pesoKg: number | null;
+  alturaCm: number | null;
 };
 
 export type ClinicalEntryUpdateInput = Omit<ClinicalEntryInput, "patientId">;
