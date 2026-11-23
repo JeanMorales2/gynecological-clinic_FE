@@ -18,12 +18,14 @@ export function LabOrdersList({
   refreshKey,
   onReceive,
   onCancel,
+  onAttachments,
 }: {
   patientId: string;
   canManage: boolean;
   refreshKey: number;
   onReceive: (order: LabOrder) => void;
   onCancel: (order: LabOrder) => void;
+  onAttachments: (order: LabOrder) => void;
 }) {
   const [items, setItems] = useState<LabOrder[]>([]);
   const [error, setError] = useState("");
@@ -93,8 +95,9 @@ export function LabOrdersList({
           key: "id",
           header: "",
           render: (order) =>
-            canManage && order.estado === "Solicitado" ? (
-              <div className="flex gap-2">
+            <div className="flex gap-2">
+                <Button onClick={() => onAttachments(order)} size="sm" variant="outline">Adjuntos</Button>
+              {canManage && order.estado === "Solicitado" ? <>
                 <Button
                   onClick={() => onReceive(order)}
                   size="sm"
@@ -116,8 +119,8 @@ export function LabOrdersList({
                 >
                   Cancelar
                 </Button>
-              </div>
-            ) : null,
+              </> : null}
+              </div>,
         },
       ]}
       data={items}

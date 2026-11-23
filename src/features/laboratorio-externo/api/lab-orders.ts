@@ -16,6 +16,15 @@ export type PagedLabOrders = {
   page: number;
   pageSize: number;
 };
+export type LabOrderAttachment = {
+  id: string;
+  labOrderId: string;
+  nombreArchivo: string;
+  contentType: string;
+  tamanoBytes: number;
+  subidoPorId: string;
+  createdAtUtc: string;
+};
 export class LabOrdersApiError extends Error {
   constructor(
     message: string,
@@ -72,4 +81,22 @@ export function cancelLabOrder(id: string) {
   return request<LabOrder>(`/api/laboratorio-externo/${id}/cancelar`, {
     method: "POST",
   });
+}
+
+export function listLabOrderAttachments(labOrderId: string) {
+  return request<LabOrderAttachment[]>(`/api/laboratorio-externo/${encodeURIComponent(labOrderId)}/adjuntos`);
+}
+
+export function uploadLabOrderAttachment(labOrderId: string, file: File) {
+  const formData = new FormData();
+  formData.append("archivo", file);
+  return request<LabOrderAttachment>(`/api/laboratorio-externo/${encodeURIComponent(labOrderId)}/adjuntos`, { method: "POST", body: formData });
+}
+
+export function deleteLabOrderAttachment(attachmentId: string) {
+  return request<void>(`/api/laboratorio-externo/adjuntos/${encodeURIComponent(attachmentId)}`, { method: "DELETE" });
+}
+
+export function attachmentDownloadUrl(attachmentId: string) {
+  return `/api/laboratorio-externo/adjuntos/${encodeURIComponent(attachmentId)}/contenido`;
 }

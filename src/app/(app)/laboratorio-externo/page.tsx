@@ -7,6 +7,7 @@ import {
   cancelLabOrder,
   createLabOrder,
   LabOrderForm,
+  LabOrderAttachments,
   LabOrdersApiError,
   LabOrdersList,
   ReceiveLabResultForm,
@@ -21,7 +22,7 @@ export default function Page() {
     Patient,
     "id" | "nombreCompleto"
   > | null>(null);
-  const [mode, setMode] = useState<"new" | "receive" | null>(null);
+  const [mode, setMode] = useState<"new" | "receive" | "attachments" | null>(null);
   const [order, setOrder] = useState<LabOrder | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -121,6 +122,11 @@ export default function Page() {
               setError("");
               setMode("receive");
             }}
+            onAttachments={(value) => {
+              setOrder(value);
+              setError("");
+              setMode("attachments");
+            }}
             patientId={patient.id}
             refreshKey={refreshKey}
           />
@@ -137,6 +143,13 @@ export default function Page() {
           onSubmit={create}
           submitError={error}
         />
+      </Modal>
+      <Modal
+        isOpen={mode === "attachments"}
+        onClose={close}
+        title={`Adjuntos${order ? `: ${order.tipoEstudio}` : ""}`}
+      >
+        {order ? <LabOrderAttachments canManage={canManage} labOrderId={order.id} /> : null}
       </Modal>
       <Modal
         isOpen={mode === "receive"}

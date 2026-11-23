@@ -54,3 +54,7 @@ export function createClinicalEntry(input: ClinicalEntryInput) {
 export function updateClinicalEntry(id: string, input: ClinicalEntryUpdateInput) {
   return request<ClinicalEntry>(`/api/historia-clinica/${encodeURIComponent(id)}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
 }
+
+export function clinicalHistoryPdfDownloadUrl(patientId: string) {
+  return `/api/historia-clinica/pacientes/${encodeURIComponent(patientId)}/exportar-pdf`;
+}
