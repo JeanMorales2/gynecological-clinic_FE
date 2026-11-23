@@ -1,3 +1,6 @@
+"use client";
+
+import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 
 export type TableColumn<T> = {
@@ -29,18 +32,53 @@ export function Table<T extends { id: string | number }>({
   emptyMessage = "No hay datos para mostrar.",
   pagination,
 }: TableProps<T>) {
+  const columnDefs: ColumnDef<T>[] = columns.map((column) => ({
+    id: String(column.key),
+    accessorKey: column.key as string,
+    header: () => column.header,
+    cell: (info) => (column.render ? column.render(info.row.original) : String(info.getValue() ?? "")),
+  }));
+
+  const table = useReactTable({
+    data,
+    columns: columnDefs,
+    getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => String(row.id),
+  });
+
+  const rows = table.getRowModel().rows;
+  const lastColumnIndex = columns.length - 1;
+
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           {caption ? <caption className="sr-only">{caption}</caption> : null}
           <thead className="bg-bg">
-            <tr>{columns.map((column) => <th className="whitespace-nowrap px-5 py-3 text-sm font-semibold text-text-secondary" key={String(column.key)} scope="col">{column.header}</th>)}</tr>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header, index) => (
+                  <th
+                    className={`whitespace-nowrap px-5 py-3 text-sm font-semibold text-text-secondary ${index === lastColumnIndex ? "text-right" : ""}`}
+                    key={header.id}
+                    scope="col"
+                  >
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
+            ))}
           </thead>
           <tbody className="divide-y divide-border">
-            {data.length > 0 ? data.map((row) => (
+            {rows.length > 0 ? rows.map((row) => (
               <tr className="transition-colors hover:bg-bg" key={row.id}>
-                {columns.map((column) => <td className="whitespace-nowrap px-5 py-4 text-sm text-text" key={String(column.key)}>{column.render ? column.render(row) : String(row[column.key] ?? "")}</td>)}
+                {row.getVisibleCells().map((cell, index) => (
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-text" key={cell.id}>
+                    {index === lastColumnIndex
+                      ? <div className="flex items-center justify-end gap-2">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+                      : flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
               </tr>
             )) : <tr><td className="px-5 py-8 text-center text-sm text-text-secondary" colSpan={columns.length}>{emptyMessage}</td></tr>}
           </tbody>
