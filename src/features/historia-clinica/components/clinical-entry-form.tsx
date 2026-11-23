@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button, Icon, Input, Select } from "@/components/ui";
+import { todayInClinicTimezone } from "@/lib/dates";
 import type { ClinicalEntry, ClinicalEntryType, ClinicalEntryUpdateInput } from "../api";
 
 export type ClinicalEntryFormValues = ClinicalEntryUpdateInput;
@@ -22,7 +23,7 @@ const typeOptions = [
   { value: "Laboratorio", label: "Laboratorio" },
 ];
 
-const today = new Date().toISOString().slice(0, 10);
+const today = todayInClinicTimezone();
 
 export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onSubmit, submitError }: ClinicalEntryFormProps) {
   const [tipo, setTipo] = useState<ClinicalEntryType>(entry?.tipo ?? "Consulta");

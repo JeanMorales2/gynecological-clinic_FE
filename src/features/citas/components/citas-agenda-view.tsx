@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, Icon, Input, Select, Table, type BadgeTone, type IconName, type TableColumn } from "@/components/ui";
+import { CLINIC_TIMEZONE, todayInClinicTimezone } from "@/lib/dates";
 import { changeAppointmentStatus, CitasApiError, listAppointments, type Appointment, type AppointmentStatus, type PagedAppointments, type Professional } from "../api";
 
 type CitasAgendaViewProps = { professionals: Professional[]; refreshKey: number; onEdit: (appointment: Appointment) => void };
 const emptyResult: PagedAppointments = { items: [], totalCount: 0, page: 1, pageSize: 100 };
-const today = new Date().toISOString().slice(0, 10);
+const today = todayInClinicTimezone();
 const statusPresentation: Record<AppointmentStatus, { tone: BadgeTone; icon: IconName; label: string }> = {
   PendienteConsulta: { tone: "neutral", icon: "clock", label: "Pendiente" },
   Recepcionado: { tone: "info", icon: "check", label: "Recepcionado" },
@@ -14,7 +15,7 @@ const statusPresentation: Record<AppointmentStatus, { tone: BadgeTone; icon: Ico
   Finalizada: { tone: "success", icon: "check", label: "Finalizada" },
   NoShow: { tone: "neutral", icon: "circle", label: "No se presentó" },
 };
-const timeFormatter = new Intl.DateTimeFormat("es-NI", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
+const timeFormatter = new Intl.DateTimeFormat("es-NI", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: CLINIC_TIMEZONE });
 
 function nextActions(status: AppointmentStatus): { label: string; target: AppointmentStatus }[] {
   if (status === "PendienteConsulta") return [{ label: "Recepcionar", target: "Recepcionado" }, { label: "No se presentó", target: "NoShow" }];

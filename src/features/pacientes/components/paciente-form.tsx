@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Badge, Button, Icon, Input, Tabs } from "@/components/ui";
+import { todayInClinicTimezone } from "@/lib/dates";
 import type { Patient, PatientInput } from "../api";
 
 type PacienteFormProps = {
@@ -49,7 +50,7 @@ export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submit
         value: "datos",
         content: <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2"><Input autoComplete="name" label="Nombre completo" onChange={(event) => setNombreCompleto(event.target.value)} required value={nombreCompleto} /></div>
-          <Input label="Fecha de nacimiento" max={new Date().toISOString().slice(0, 10)} onChange={(event) => setFechaNacimiento(event.target.value)} required type="date" value={fechaNacimiento} />
+          <Input label="Fecha de nacimiento" max={todayInClinicTimezone()} onChange={(event) => setFechaNacimiento(event.target.value)} required type="date" value={fechaNacimiento} />
           <Input autoComplete="tel" label="Teléfono" onChange={(event) => setTelefono(event.target.value)} required type="tel" value={telefono} />
           <Input autoComplete="email" label="Correo electrónico" onChange={(event) => setEmail(event.target.value)} type="email" value={email} />
           <Input label="Documento de identidad" onChange={(event) => setDocumentoIdentidad(event.target.value)} value={documentoIdentidad} />

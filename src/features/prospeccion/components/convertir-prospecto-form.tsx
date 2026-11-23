@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button, Icon, Input } from "@/components/ui";
+import { todayInClinicTimezone } from "@/lib/dates";
 import type { ConvertProspectInput, Prospect } from "../api";
 
 type ConvertirProspectoFormProps = {
@@ -38,7 +39,7 @@ export function ConvertirProspectoForm({ isSubmitting, onCancel, onSubmit, prosp
   return <form className="space-y-4" onSubmit={handleSubmit}>
     <p className="rounded-lg bg-bg p-3 text-sm text-text-secondary">Se creará la ficha de <span className="font-semibold text-text">{prospect.nombreCompleto}</span> con el teléfono {prospect.telefono}{prospect.email ? ` y el correo ${prospect.email}` : ""}.</p>
     {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
-    <Input label="Fecha de nacimiento" max={new Date().toISOString().slice(0, 10)} onChange={(event) => setFechaNacimiento(event.target.value)} required type="date" value={fechaNacimiento} />
+    <Input label="Fecha de nacimiento" max={todayInClinicTimezone()} onChange={(event) => setFechaNacimiento(event.target.value)} required type="date" value={fechaNacimiento} />
     <Input label="Documento de identidad" onChange={(event) => setDocumentoIdentidad(event.target.value)} value={documentoIdentidad} />
     <label className="block space-y-2 text-sm font-medium text-text">
       <span>Alergias</span>
