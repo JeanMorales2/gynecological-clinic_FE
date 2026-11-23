@@ -14,11 +14,27 @@ const shapeByIcon: Record<FestiveIconName, ParticleShape | undefined> = {
   flag: "spark",
 };
 
-const densityByShape: Record<ParticleShape, number> = { snow: 34, petal: 20, spark: 16 };
+const densityByShape: Record<ParticleShape, number> = {
+  snow: 34,
+  petal: 20,
+  spark: 16,
+};
 
-type Particle = { id: number; left: number; duration: number; delay: number; size: number; drift: number; opacity: number };
+type Particle = {
+  id: number;
+  left: number;
+  duration: number;
+  delay: number;
+  size: number;
+  drift: number;
+  opacity: number;
+};
 
-function buildParticles(count: number, minOpacity: number, opacityRange: number): Particle[] {
+function buildParticles(
+  count: number,
+  minOpacity: number,
+  opacityRange: number,
+): Particle[] {
   return Array.from({ length: count }, (_, id) => ({
     id,
     left: Math.random() * 100,
@@ -34,38 +50,56 @@ export function FestiveWeather() {
   const { preview } = useFestivePreview();
   const { theme } = useFestiveTheme();
 
-  const active = preview
-    ? { icon: preview.icon, accentColor: preview.accentColor }
-    : theme?.hasTheme
-      ? { icon: theme.icon, accentColor: theme.accentColor }
-      : null;
+  const active =
+    preview === "off"
+      ? null
+      : preview
+        ? { icon: preview.icon, accentColor: preview.accentColor }
+        : theme?.hasTheme
+          ? { icon: theme.icon, accentColor: theme.accentColor }
+          : null;
 
   const shape = active?.icon ? shapeByIcon[active.icon] : undefined;
   const particles = useMemo(
-    () => (shape ? buildParticles(densityByShape[shape], shape === "snow" ? 0.45 : 0.35, shape === "snow" ? 0.4 : 0.35) : []),
+    () =>
+      shape
+        ? buildParticles(
+            densityByShape[shape],
+            shape === "snow" ? 0.45 : 0.35,
+            shape === "snow" ? 0.4 : 0.35,
+          )
+        : [],
     [shape],
   );
 
   if (!shape || !active) return null;
 
-  const particleColor = shape === "snow" ? "var(--festive-snow-color)" : active.accentColor;
+  const particleColor =
+    shape === "snow" ? "var(--festive-snow-color)" : active.accentColor;
 
-  return <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
-    {particles.map((particle) => (
-      <span
-        className={`festive-particle festive-particle--${shape}`}
-        key={particle.id}
-        style={{
-          left: `${particle.left}%`,
-          width: particle.size,
-          height: particle.size,
-          backgroundColor: particleColor,
-          opacity: particle.opacity,
-          animationDuration: `${particle.duration}s`,
-          animationDelay: `${particle.delay}s`,
-          "--festive-drift": `${particle.drift}px`,
-        } as CSSProperties}
-      />
-    ))}
-  </div>;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-50 overflow-hidden"
+    >
+      {particles.map((particle) => (
+        <span
+          className={`festive-particle festive-particle--${shape}`}
+          key={particle.id}
+          style={
+            {
+              left: `${particle.left}%`,
+              width: particle.size,
+              height: particle.size,
+              backgroundColor: particleColor,
+              opacity: particle.opacity,
+              animationDuration: `${particle.duration}s`,
+              animationDelay: `${particle.delay}s`,
+              "--festive-drift": `${particle.drift}px`,
+            } as CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
 }

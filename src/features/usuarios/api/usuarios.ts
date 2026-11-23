@@ -20,7 +20,10 @@ export type CreateStaffInput = {
 export type UpdateStaffInput = Omit<CreateStaffInput, "email" | "password">;
 
 export class UsuariosApiError extends Error {
-  constructor(message: string, readonly status: number) {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
     super(message);
   }
 }
@@ -30,9 +33,13 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const payload: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const message = payload && typeof payload === "object" && "message" in payload && typeof payload.message === "string"
-      ? payload.message
-      : "No se pudo completar la operación. Intentá de nuevo.";
+    const message =
+      payload &&
+      typeof payload === "object" &&
+      "message" in payload &&
+      typeof payload.message === "string"
+        ? payload.message
+        : "No se pudo completar la operación. Intentá de nuevo.";
     throw new UsuariosApiError(message, response.status);
   }
 
@@ -60,5 +67,15 @@ export function updateStaff(id: string, input: UpdateStaffInput) {
 }
 
 export function deactivateStaff(id: string) {
-  return request<StaffUser>(`/api/usuarios/${encodeURIComponent(id)}/desactivar`, { method: "POST" });
+  return request<StaffUser>(
+    `/api/usuarios/${encodeURIComponent(id)}/desactivar`,
+    { method: "POST" },
+  );
+}
+
+export function reactivateStaff(id: string) {
+  return request<StaffUser>(
+    `/api/usuarios/${encodeURIComponent(id)}/reactivar`,
+    { method: "POST" },
+  );
 }
