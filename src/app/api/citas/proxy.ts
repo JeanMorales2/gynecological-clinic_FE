@@ -12,7 +12,8 @@ export async function forwardCitasRequest(path: string, init: RequestInit) {
     const backendResponse = await fetch(`${backendUrl}${path}`, { ...init, cache: "no-store", headers: { Authorization: `Bearer ${token}`, ...init.headers } });
     const body = await backendResponse.text();
     if (!body) return new NextResponse(null, { status: backendResponse.status });
-    return NextResponse.json(JSON.parse(body), { status: backendResponse.status });
+    try { return NextResponse.json(JSON.parse(body), { status: backendResponse.status }); }
+    catch { return new NextResponse(body, { status: backendResponse.status, headers: { "Content-Type": backendResponse.headers.get("Content-Type") ?? "text/plain" } }); }
   } catch { return NextResponse.json({ message: "No se pudo comunicar con la API." }, { status: 502 }); }
 }
 

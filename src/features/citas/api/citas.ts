@@ -17,6 +17,8 @@ export type Appointment = {
 export type Professional = { id: string; nombreCompleto: string };
 export type PagedAppointments = { items: Appointment[]; totalCount: number; page: number; pageSize: number };
 export type AppointmentInput = { patientId: string; profesionalId: string; fechaHoraInicio: string; duracionMinutos: number; notas: string | null };
+export type ScheduleException = { id: string; fecha: string; descripcion: string; createdAtUtc: string };
+export type ScheduleExceptionInput = { fecha: string; descripcion: string };
 
 export class CitasApiError extends Error {
   constructor(message: string, readonly status: number) { super(message); }
@@ -54,4 +56,20 @@ export function updateAppointment(id: string, input: AppointmentInput) {
 
 export function changeAppointmentStatus(id: string, estado: AppointmentStatus) {
   return request<Appointment>(`/api/citas/${encodeURIComponent(id)}/estado`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ estado }) });
+}
+
+export function listScheduleExceptions({ desde, hasta }: { desde?: string; hasta?: string } = {}) {
+  const query = new URLSearchParams();
+  if (desde) query.set("desde", desde);
+  if (hasta) query.set("hasta", hasta);
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return request<ScheduleException[]>(`/api/citas/excepciones${suffix}`);
+}
+
+export function createScheduleException(input: ScheduleExceptionInput) {
+  return request<ScheduleException>("/api/citas/excepciones", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
+}
+
+export function deleteScheduleException(id: string) {
+  return request<void>(`/api/citas/excepciones/${encodeURIComponent(id)}`, { method: "DELETE" });
 }

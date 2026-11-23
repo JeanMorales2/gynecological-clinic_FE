@@ -1,2 +1,2 @@
-export { changeAppointmentStatus, CitasApiError, createAppointment, listAppointments, listProfessionals, updateAppointment } from "./citas";
-export type { Appointment, AppointmentInput, AppointmentStatus, PagedAppointments, Professional } from "./citas";
+export { changeAppointmentStatus, CitasApiError, createAppointment, createScheduleException, deleteScheduleException, listAppointments, listProfessionals, listScheduleExceptions, updateAppointment } from "./citas";
+export type { Appointment, AppointmentInput, AppointmentStatus, PagedAppointments, Professional, ScheduleException, ScheduleExceptionInput } from "./citas";
