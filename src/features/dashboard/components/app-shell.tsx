@@ -43,7 +43,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
     else if (!event.shiftKey && document.activeElement === lastElement) { event.preventDefault(); firstElement.focus(); }
   }
   if (isSessionLoading) return <BootSplash />;
-  return <div className="flex min-h-screen bg-bg">
+  return <DialogProvider><div className="flex min-h-screen bg-bg">
     <div className="hidden w-72 shrink-0 lg:block"><Sidebar className="fixed inset-y-0 left-0 z-30" /></div>
     {isSidebarOpen ? <div className="fixed inset-0 z-40 lg:hidden">
       <button aria-label="Cerrar menú de navegación" className="absolute inset-0 h-full w-full bg-black/40" onClick={closeSidebar} type="button" />
@@ -52,7 +52,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
         <Sidebar onNavigate={closeSidebar} />
       </aside>
     </div> : null}
-    <DialogProvider><div className="flex min-w-0 flex-1 flex-col"><Topbar isSidebarOpen={isSidebarOpen} menuButtonRef={menuButtonRef} onOpenSidebar={() => setIsSidebarOpen(true)} />{children}</div></DialogProvider>
+    <div className="flex min-w-0 flex-1 flex-col"><Topbar isSidebarOpen={isSidebarOpen} menuButtonRef={menuButtonRef} onOpenSidebar={() => setIsSidebarOpen(true)} />{children}</div>
     <FestiveWeather />
-  </div>;
+  </div></DialogProvider>;
 }

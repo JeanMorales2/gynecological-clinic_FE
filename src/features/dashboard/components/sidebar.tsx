@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import { BrandIcon } from "@/components/brand-mark";
 import { Icon, Select, type IconName } from "@/components/ui";
 import { logout } from "@/features/auth/api/session";
+import { ChangePasswordModal } from "@/features/auth/components/change-password-modal";
 import {
   getCuratedHolidays,
   useFestivePreview,
@@ -65,6 +66,7 @@ export function Sidebar({ className = "", onNavigate }: SidebarProps) {
   const { user, setUser } = useSession();
   const { theme, setTheme } = useTheme();
   const { preview, setPreview } = useFestivePreview();
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const visibleNavigation = navigation.filter(
     (item) =>
       (!item.requiredPermission || hasPermission(user, item.requiredPermission)) &&
@@ -195,6 +197,13 @@ export function Sidebar({ className = "", onNavigate }: SidebarProps) {
           </summary>
           <div className="absolute inset-x-0 bottom-full z-10 mb-2 rounded-lg border border-border bg-surface p-2 shadow-lg">
             <button
+              className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium text-text hover:bg-bg focus:outline-none focus:ring-2 focus:ring-primary"
+              onClick={() => setIsChangePasswordOpen(true)}
+              type="button"
+            >
+              Cambiar contraseña
+            </button>
+            <button
               className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium text-primary hover:bg-primary-soft focus:outline-none focus:ring-2 focus:ring-primary"
               onClick={handleLogout}
               type="button"
@@ -205,6 +214,7 @@ export function Sidebar({ className = "", onNavigate }: SidebarProps) {
           </div>
         </details>
       </div>
+      <ChangePasswordModal isOpen={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} />
     </aside>
   );
 }
