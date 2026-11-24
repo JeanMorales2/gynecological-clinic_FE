@@ -11,10 +11,11 @@ type PromotionFormProps = {
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (input: { patientId: string; tipo: PromotionType; titulo: string; mensaje: string; fechaGenerada: string }) => Promise<void>;
 };
 
-export function PromotionForm({ isSubmitting, onCancel, onSubmit, submitError }: PromotionFormProps) {
+export function PromotionForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, submitError }: PromotionFormProps) {
   const [selectedPatient, setSelectedPatient] = useState<Pick<Patient, "id" | "nombreCompleto"> | null>(null);
   const [tipo, setTipo] = useState<PromotionType>("Cumpleanos");
   const [titulo, setTitulo] = useState("");
@@ -33,7 +34,7 @@ export function PromotionForm({ isSubmitting, onCancel, onSubmit, submitError }:
   }
 
   const error = validationError || submitError;
-  return <form className="space-y-4" onSubmit={handleSubmit}>
+  return <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={handleSubmit}>
     {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
     <PatientSearchPicker onSelect={setSelectedPatient} selectedPatient={selectedPatient} />
     <div className="grid gap-4 sm:grid-cols-2">

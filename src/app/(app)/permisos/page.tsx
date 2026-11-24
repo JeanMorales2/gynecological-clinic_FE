@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Button, Card, Icon } from "@/components/ui";
+import { Button, Card, Icon, PageMessage } from "@/components/ui";
 import {
   listPermissions,
   PermissionsMatrix,
@@ -134,26 +134,16 @@ export default function Page() {
         </p>
       </div>
 
-      {actionError ? (
-        <div
-          className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger"
-          role="alert"
-        >
-          <Icon name="alert" size={18} />
-          <span>{actionError}</span>
-        </div>
-      ) : null}
+      <PageMessage message={actionError} />
 
       {loadError ? (
         <Card>
           <div className="space-y-3">
-            <p className="text-sm text-danger" role="alert">
-              {loadError}
-            </p>
             <Button onClick={() => void loadPermissions()} variant="outline">
               Reintentar
             </Button>
           </div>
+          <PageMessage message={loadError} />
         </Card>
       ) : isLoading ? (
         <p className="text-sm text-text-secondary" role="status">

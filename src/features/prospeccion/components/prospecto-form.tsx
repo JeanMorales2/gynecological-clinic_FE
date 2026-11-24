@@ -9,6 +9,7 @@ type ProspectoFormProps = {
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: NewProspectInput | ProspectInput) => Promise<void>;
 };
 
@@ -19,7 +20,7 @@ const editableStates: { label: string; value: ProspectStatus }[] = [
   { label: "Perdido", value: "Perdido" },
 ];
 
-export function ProspectoForm({ isSubmitting, onCancel, onSubmit, prospect, submitError }: ProspectoFormProps) {
+export function ProspectoForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, prospect, submitError }: ProspectoFormProps) {
   const [nombreCompleto, setNombreCompleto] = useState(prospect?.nombreCompleto ?? "");
   const [telefono, setTelefono] = useState(prospect?.telefono ?? "");
   const [telefonoAlternativo, setTelefonoAlternativo] = useState(prospect?.telefonoAlternativo ?? "");
@@ -48,7 +49,7 @@ export function ProspectoForm({ isSubmitting, onCancel, onSubmit, prospect, subm
   }
 
   const error = validationError || submitError;
-  return <form className="space-y-4" onSubmit={handleSubmit}>
+  return <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={handleSubmit}>
     {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2"><Input autoComplete="name" label="Nombre completo" onChange={(event) => setNombreCompleto(event.target.value)} required value={nombreCompleto} /></div>

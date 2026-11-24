@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui";
+import { Button, useConfirmDialog } from "@/components/ui";
 import { attachmentDownloadUrl, deleteLabOrderAttachment, LabOrdersApiError, listLabOrderAttachments, type LabOrderAttachment, uploadLabOrderAttachment } from "../api";
 
 function formatSize(bytes: number) {
@@ -9,6 +9,7 @@ function formatSize(bytes: number) {
 }
 
 export function LabOrderAttachments({ labOrderId, canManage }: { labOrderId: string; canManage: boolean }) {
+  const { confirm } = useConfirmDialog();
   const [attachments, setAttachments] = useState<LabOrderAttachment[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +40,7 @@ export function LabOrderAttachments({ labOrderId, canManage }: { labOrderId: str
   }
 
   async function remove(attachment: LabOrderAttachment) {
-    if (!window.confirm(`\u00bfEliminar ${attachment.nombreArchivo}? Esta acci\u00f3n no se puede deshacer.`)) return;
+    if (!(await confirm(`¿Eliminar ${attachment.nombreArchivo}? Esta acción no se puede deshacer.`, { danger: true, confirmLabel: "Eliminar" }))) return;
     setSubmitting(true);
     setError("");
     try { await deleteLabOrderAttachment(attachment.id); setRefreshKey((value) => value + 1); }

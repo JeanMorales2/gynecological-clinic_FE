@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, Table, type BadgeTone } from "@/components/ui";
+import { Badge, Button, Card, PageMessage, Table, useConfirmDialog, type BadgeTone } from "@/components/ui";
 import {
   LabOrdersApiError,
   listLabOrders,
@@ -27,6 +27,7 @@ export function LabOrdersList({
   onCancel: (order: LabOrder) => void;
   onAttachments: (order: LabOrder) => void;
 }) {
+  const { confirm } = useConfirmDialog();
   const [items, setItems] = useState<LabOrder[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -56,14 +57,7 @@ export function LabOrdersList({
   }, [patientId, refreshKey]);
   if (loading)
     return <p className="text-sm text-text-secondary">Cargando órdenes...</p>;
-  if (error)
-    return (
-      <Card>
-        <p className="text-sm text-danger" role="alert">
-          {error}
-        </p>
-      </Card>
-    );
+  if (error) return <><PageMessage message={error} /><Card><div /></Card></>;
   return (
     <Table
       columns={[
@@ -106,14 +100,9 @@ export function LabOrdersList({
                   Cargar resultado
                 </Button>
                 <Button
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        `¿Cancelar la orden de ${order.tipoEstudio}? Esta acción no se puede deshacer.`,
-                      )
-                    )
-                      onCancel(order);
-                  }}
+                  onClick={() => void (async () => {
+                    if (await confirm(`¿Cancelar la orden de ${order.tipoEstudio}? Esta acción no se puede deshacer.`, { danger: true, confirmLabel: "Cancelar orden" })) onCancel(order);
+                  })()}
                   size="sm"
                   variant="outline"
                 >

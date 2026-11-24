@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Button, Card, Icon, Modal } from "@/components/ui";
+import { Button, Card, Icon, Modal, PageMessage, useConfirmDialog } from "@/components/ui";
 import {
   createStaff,
   deactivateStaff,
@@ -17,6 +17,7 @@ import {
 import { hasPermission, useSession } from "@/stores/session";
 
 export default function Page() {
+  const { confirm } = useConfirmDialog();
   const { isLoading: isSessionLoading, user } = useSession();
   const [users, setUsers] = useState<StaffUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +26,7 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<StaffUser | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const [formError, setFormError] = useState("");
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
 
@@ -76,19 +78,23 @@ export default function Page() {
   function openNewUserModal() {
     setEditingUser(null);
     setFormError("");
+    setIsFormDirty(false);
     setIsModalOpen(true);
   }
 
   function openEditUserModal(staffUser: StaffUser) {
     setEditingUser(staffUser);
     setFormError("");
+    setIsFormDirty(false);
     setIsModalOpen(true);
   }
 
-  function closeModal() {
+  async function closeModal() {
     if (isSubmitting) return;
+    if (isFormDirty && !(await confirm("Tenés cambios sin guardar. Si salís ahora, se van a perder. ¿Querés salir igual?", { danger: true, confirmLabel: "Salir sin guardar" }))) return;
     setIsModalOpen(false);
     setFormError("");
+    setIsFormDirty(false);
   }
 
   async function handleSubmit(values: UsuarioFormValues) {
@@ -129,11 +135,7 @@ export default function Page() {
   }
 
   async function handleDeactivate(staffUser: StaffUser) {
-    if (
-      !window.confirm(
-        `¿Desactivar a ${staffUser.nombreCompleto}? Esta persona ya no podrá iniciar sesión.`,
-      )
-    )
+    if (!(await confirm(`¿Desactivar a ${staffUser.nombreCompleto}? Esta persona ya no podrá iniciar sesión.`, { danger: true, confirmLabel: "Desactivar" })))
       return;
 
     setActionError("");
@@ -157,11 +159,7 @@ export default function Page() {
   }
 
   async function handleReactivate(staffUser: StaffUser) {
-    if (
-      !window.confirm(
-        `¿Reactivar a ${staffUser.nombreCompleto}? Podrá volver a iniciar sesión.`,
-      )
-    )
+    if (!(await confirm(`¿Reactivar a ${staffUser.nombreCompleto}? Podrá volver a iniciar sesión.`, { confirmLabel: "Reactivar" })))
       return;
 
     setActionError("");
@@ -228,26 +226,15 @@ export default function Page() {
         </Button>
       </div>
 
-      {actionError ? (
-        <div
-          className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger"
-          role="alert"
-        >
-          <Icon name="alert" size={18} />
-          <span>{actionError}</span>
-        </div>
-      ) : null}
+      <PageMessage message={actionError} />
       {loadError ? (
-        <Card>
+        <><PageMessage message={loadError} /><Card>
           <div className="space-y-3">
-            <p className="text-sm text-danger" role="alert">
-              {loadError}
-            </p>
             <Button onClick={() => void loadUsers()} variant="outline">
               Reintentar
             </Button>
           </div>
-        </Card>
+        </Card></>
       ) : null}
       {!loadError ? (
         isLoading ? (
@@ -267,13 +254,14 @@ export default function Page() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={closeModal}
+        onClose={() => void closeModal()}
         title={editingUser ? "Editar usuario" : "Nuevo usuario"}
       >
         <UsuarioForm
           isSubmitting={isSubmitting}
           key={editingUser?.id ?? "new"}
-          onCancel={closeModal}
+          onCancel={() => void closeModal()}
+          onDirtyChange={setIsFormDirty}
           onSubmit={handleSubmit}
           submitError={formError}
           user={editingUser}

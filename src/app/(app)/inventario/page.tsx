@@ -1,3 +1,197 @@
 "use client";
-import { useState } from "react"; import { Button, Card, Icon, Input, Modal } from "@/components/ui"; import { adjustStock, createInventoryItem, InventarioApiError, InventoryItemForm, InventoryTable, listStockMovements, AdjustStockForm, type InventoryItem, type StockMovement } from "@/features/inventario"; import { hasPermission, useSession } from "@/stores/session";
-export default function Page() { const { user } = useSession(); const [search, setSearch] = useState(""); const [categoria, setCategoria] = useState(""); const [soloBajoStock, setSolo] = useState(false); const [mode, setMode] = useState<"new" | "adjust" | "history" | null>(null); const [item, setItem] = useState<InventoryItem | null>(null); const [history, setHistory] = useState<StockMovement[]>([]); const [error, setError] = useState(""); const [submitting, setSubmitting] = useState(false); const [refreshKey, setRefreshKey] = useState(0); const canManage = hasPermission(user, "inventario.gestionar"); function close() { if (!submitting) { setMode(null); setError(""); } } async function create(input: Parameters<typeof createInventoryItem>[0]) { setSubmitting(true); setError(""); try { await createInventoryItem(input); setRefreshKey((x) => x + 1); close(); } catch (reason) { setError(reason instanceof InventarioApiError ? reason.message : "No se pudo crear el ítem."); } finally { setSubmitting(false); } } async function adjust(delta: number, motivo: string) { if (!item) return; setSubmitting(true); setError(""); try { await adjustStock(item.id, delta, motivo); setRefreshKey((x) => x + 1); close(); } catch (reason) { setError(reason instanceof InventarioApiError ? reason.message : "No se pudo ajustar el stock."); } finally { setSubmitting(false); } } async function showHistory(value: InventoryItem) { setItem(value); setError(""); try { setHistory((await listStockMovements(value.id)).items); setMode("history"); } catch (reason) { setError(reason instanceof InventarioApiError ? reason.message : "No se pudo cargar el historial."); setMode("history"); } } return <div className="space-y-6"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-semibold tracking-tight text-text">Inventario y stock</h1><p className="mt-1 text-sm text-text-secondary">Controlá existencias y sus movimientos.</p></div>{canManage ? <Button leadingIcon={<Icon name="plus" size={18} />} onClick={() => setMode("new")}>Nuevo ítem</Button> : null}</div><Card title="Filtros"><div className="grid gap-4 sm:grid-cols-2"><Input label="Buscar por nombre" onChange={(e) => setSearch(e.target.value)} value={search} /><Input label="Categoría" onChange={(e) => setCategoria(e.target.value)} value={categoria} /><label className="flex items-center gap-2 text-sm font-medium text-text"><input checked={soloBajoStock} onChange={(e) => setSolo(e.target.checked)} type="checkbox" />Solo bajo stock</label></div></Card><InventoryTable canManage={canManage} filters={{ search, categoria, soloBajoStock }} onAdjust={(x) => { setItem(x); setError(""); setMode("adjust"); }} onHistory={showHistory} refreshKey={refreshKey} /><Modal isOpen={mode === "new"} onClose={close} title="Nuevo ítem"><InventoryItemForm error={error} isSubmitting={submitting} onCancel={close} onSubmit={create} /></Modal><Modal isOpen={mode === "adjust"} onClose={close} title={`Ajustar stock${item ? `: ${item.nombre}` : ""}`}><AdjustStockForm error={error} isSubmitting={submitting} onCancel={close} onSubmit={adjust} /></Modal><Modal isOpen={mode === "history"} onClose={close} title={`Movimientos${item ? `: ${item.nombre}` : ""}`}>{error ? <p className="text-sm text-danger">{error}</p> : <ul className="space-y-3">{history.length ? history.map((x) => <li className="border-b border-border pb-3 text-sm" key={x.id}><p><span className="font-medium">{x.delta > 0 ? "+" : ""}{x.delta}</span> · {x.motivo}</p><p className="text-text-secondary">{new Date(x.createdAtUtc).toLocaleString()} · Resultante: {x.stockResultante} · Usuario: {x.registradoPorId}</p></li>) : <li className="text-sm text-text-secondary">No hay movimientos registrados.</li>}</ul>}</Modal></div>; }
+import { useState } from "react";
+import { Button, Card, Icon, Input, Modal, useConfirmDialog } from "@/components/ui";
+import {
+  adjustStock,
+  createInventoryItem,
+  InventarioApiError,
+  InventoryItemForm,
+  InventoryTable,
+  listStockMovements,
+  AdjustStockForm,
+  type InventoryItem,
+  type StockMovement,
+} from "@/features/inventario";
+import { hasPermission, useSession } from "@/stores/session";
+export default function Page() {
+  const { confirm } = useConfirmDialog();
+  const { user } = useSession();
+  const [search, setSearch] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [soloBajoStock, setSolo] = useState(false);
+  const [mode, setMode] = useState<"new" | "adjust" | "history" | null>(null);
+  const [item, setItem] = useState<InventoryItem | null>(null);
+  const [history, setHistory] = useState<StockMovement[]>([]);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const canManage = hasPermission(user, "inventario.gestionar");
+  async function close() {
+    if (submitting) return;
+    if ((mode === "new" || mode === "adjust") && isFormDirty && !(await confirm("Tenés cambios sin guardar. Si salís ahora, se van a perder. ¿Querés salir igual?", { danger: true, confirmLabel: "Salir sin guardar" }))) return;
+    setMode(null);
+    setError("");
+    setIsFormDirty(false);
+  }
+  async function create(input: Parameters<typeof createInventoryItem>[0]) {
+    setSubmitting(true);
+    setError("");
+    try {
+      await createInventoryItem(input);
+      setRefreshKey((x) => x + 1);
+      close();
+    } catch (reason) {
+      setError(
+        reason instanceof InventarioApiError
+          ? reason.message
+          : "No se pudo crear el ítem.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+  async function adjust(delta: number, motivo: string) {
+    if (!item) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      await adjustStock(item.id, delta, motivo);
+      setRefreshKey((x) => x + 1);
+      close();
+    } catch (reason) {
+      setError(
+        reason instanceof InventarioApiError
+          ? reason.message
+          : "No se pudo ajustar el stock.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+  async function showHistory(value: InventoryItem) {
+    setItem(value);
+    setError("");
+    try {
+      setHistory((await listStockMovements(value.id)).items);
+      setMode("history");
+    } catch (reason) {
+      setError(
+        reason instanceof InventarioApiError
+          ? reason.message
+          : "No se pudo cargar el historial.",
+      );
+      setMode("history");
+    }
+  }
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-text">
+            Inventario y stock
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Controlá existencias y sus movimientos.
+          </p>
+        </div>
+        {canManage ? (
+          <Button
+            leadingIcon={<Icon name="plus" size={18} />}
+            onClick={() => { setIsFormDirty(false); setMode("new"); }}
+          >
+            Nuevo ítem
+          </Button>
+        ) : null}
+      </div>
+      <Card title="Filtros">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input
+            label="Buscar por nombre"
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
+          />
+          <Input
+            label="Categoría"
+            onChange={(e) => setCategoria(e.target.value)}
+            value={categoria}
+          />
+          <label className="flex items-center gap-2 text-sm font-medium text-text">
+            <input
+              checked={soloBajoStock}
+              onChange={(e) => setSolo(e.target.checked)}
+              type="checkbox"
+            />
+            Solo bajo stock
+          </label>
+        </div>
+      </Card>
+      <InventoryTable
+        canManage={canManage}
+        filters={{ search, categoria, soloBajoStock }}
+        onAdjust={(x) => {
+          setItem(x);
+          setError("");
+          setIsFormDirty(false); setMode("adjust");
+        }}
+        onHistory={showHistory}
+        refreshKey={refreshKey}
+      />
+      <Modal isOpen={mode === "new"} onClose={() => void close()} title="Nuevo ítem">
+        <InventoryItemForm
+          error={error}
+          isSubmitting={submitting}
+          onCancel={() => void close()}
+          onDirtyChange={setIsFormDirty}
+          onSubmit={create}
+        />
+      </Modal>
+      <Modal
+        isOpen={mode === "adjust"}
+        onClose={() => void close()}
+        title={`Ajustar stock${item ? `: ${item.nombre}` : ""}`}
+      >
+        <AdjustStockForm
+          error={error}
+          isSubmitting={submitting}
+          onCancel={() => void close()}
+          onDirtyChange={setIsFormDirty}
+          onSubmit={adjust}
+        />
+      </Modal>
+      <Modal
+        isOpen={mode === "history"}
+        onClose={close}
+        title={`Movimientos${item ? `: ${item.nombre}` : ""}`}
+      >
+        {error ? (
+          <p className="text-sm text-danger">{error}</p>
+        ) : (
+          <ul className="space-y-3">
+            {history.length ? (
+              history.map((x) => (
+                <li className="border-b border-border pb-3 text-sm" key={x.id}>
+                  <p>
+                    <span className="font-medium">
+                      {x.delta > 0 ? "+" : ""}
+                      {x.delta}
+                    </span>{" "}
+                    · {x.motivo}
+                  </p>
+                  <p className="text-text-secondary">
+                    {new Date(x.createdAtUtc).toLocaleString()} · Resultante:{" "}
+                    {x.stockResultante} · Usuario: {x.registradoPorId}
+                  </p>
+                </li>
+              ))
+            ) : (
+              <li className="text-sm text-text-secondary">
+                No hay movimientos registrados.
+              </li>
+            )}
+          </ul>
+        )}
+      </Modal>
+    </div>
+  );
+}

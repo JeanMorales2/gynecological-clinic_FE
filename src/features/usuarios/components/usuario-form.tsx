@@ -17,6 +17,7 @@ type UsuarioFormProps = {
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: UsuarioFormValues) => Promise<void>;
 };
 
@@ -26,7 +27,7 @@ const roleOptions = [
   { value: "Ginecologa", label: "Ginecóloga" },
 ];
 
-export function UsuarioForm({ isSubmitting, onCancel, onSubmit, submitError, user }: UsuarioFormProps) {
+export function UsuarioForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, submitError, user }: UsuarioFormProps) {
   const isEditing = Boolean(user);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +59,7 @@ export function UsuarioForm({ isSubmitting, onCancel, onSubmit, submitError, use
 
   const error = validationError || submitError;
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={handleSubmit}>
       {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
       {!isEditing ? <>
         <Input autoComplete="email" label="Correo electrónico" onChange={(event) => setEmail(event.target.value)} required type="email" value={email} />

@@ -10,10 +10,11 @@ type ConvertirProspectoFormProps = {
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: ConvertProspectInput) => Promise<void>;
 };
 
-export function ConvertirProspectoForm({ isSubmitting, onCancel, onSubmit, prospect, submitError }: ConvertirProspectoFormProps) {
+export function ConvertirProspectoForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, prospect, submitError }: ConvertirProspectoFormProps) {
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [documentoIdentidad, setDocumentoIdentidad] = useState("");
   const [alergias, setAlergias] = useState("");
@@ -36,7 +37,7 @@ export function ConvertirProspectoForm({ isSubmitting, onCancel, onSubmit, prosp
   }
 
   const error = validationError || submitError;
-  return <form className="space-y-4" onSubmit={handleSubmit}>
+  return <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={handleSubmit}>
     <p className="rounded-lg bg-bg p-3 text-sm text-text-secondary">Se creará la ficha de <span className="font-semibold text-text">{prospect.nombreCompleto}</span> con el teléfono {prospect.telefono}{prospect.email ? ` y el correo ${prospect.email}` : ""}.</p>
     {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
     <Input label="Fecha de nacimiento" max={todayInClinicTimezone()} onChange={(event) => setFechaNacimiento(event.target.value)} required type="date" value={fechaNacimiento} />

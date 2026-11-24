@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Button, Card, Icon, Input, Modal } from "@/components/ui";
+import { Button, Card, Icon, Input, Modal, PageMessage, useConfirmDialog } from "@/components/ui";
 import { hasPermission, useSession } from "@/stores/session";
 import { CitaForm, CitasAgendaView, CitasApiError, createAppointment, createScheduleException, deleteScheduleException, listProfessionals, listScheduleExceptions, updateAppointment, type Appointment, type AppointmentInput, type Professional, type ScheduleException } from "@/features/citas";
 
 export default function Page() {
+  const { confirm } = useConfirmDialog();
   const { user } = useSession();
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [professionalsError, setProfessionalsError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const [formError, setFormError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [scheduleExceptions, setScheduleExceptions] = useState<ScheduleException[]>([]);
@@ -43,9 +45,9 @@ export default function Page() {
     return () => { isCurrent = false; };
   }, [user]);
 
-  function openNewModal() { setEditingAppointment(null); setFormError(""); setIsModalOpen(true); }
-  function openEditModal(appointment: Appointment) { setEditingAppointment(appointment); setFormError(""); setIsModalOpen(true); }
-  function closeModal() { if (!isSubmitting) { setIsModalOpen(false); setFormError(""); } }
+  function openNewModal() { setEditingAppointment(null); setFormError(""); setIsFormDirty(false); setIsModalOpen(true); }
+  function openEditModal(appointment: Appointment) { setEditingAppointment(appointment); setFormError(""); setIsFormDirty(false); setIsModalOpen(true); }
+  async function closeModal() { if (isSubmitting) return; if (isFormDirty && !(await confirm("Tenés cambios sin guardar. Si salís ahora, se van a perder. ¿Querés salir igual?", { danger: true, confirmLabel: "Salir sin guardar" }))) return; setIsModalOpen(false); setFormError(""); setIsFormDirty(false); }
 
   async function submitAppointment(values: AppointmentInput) {
     setIsSubmitting(true); setFormError("");
@@ -67,7 +69,7 @@ export default function Page() {
   }
 
   async function removeScheduleException(scheduleException: ScheduleException) {
-    if (!window.confirm(`¿Eliminar la excepción del ${formatExceptionDate(scheduleException.fecha)}?`)) return;
+    if (!(await confirm(`¿Eliminar la excepción del ${formatExceptionDate(scheduleException.fecha)}?`, { danger: true, confirmLabel: "Eliminar" }))) return;
     setIsSavingException(true); setScheduleExceptionError("");
     try {
       await deleteScheduleException(scheduleException.id);
@@ -78,10 +80,11 @@ export default function Page() {
 
   return <div className="space-y-6">
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-semibold tracking-tight text-text">Citas y agenda</h1><p className="mt-1 text-sm text-text-secondary">Agendá y seguí las consultas de cada día.</p></div><Button leadingIcon={<Icon name="plus" size={18} />} onClick={openNewModal}>Nueva cita</Button></div>
-    {professionalsError ? <Card><p className="text-sm text-danger" role="alert">{professionalsError}</p></Card> : null}
+    <PageMessage message={professionalsError} />
     <CitasAgendaView onEdit={openEditModal} professionals={professionals} refreshKey={refreshKey} />
-    {hasPermission(user, "citas.gestionar_excepciones") ? <Card title="Días de excepción (horario completo)"><div className="space-y-4">{scheduleExceptionError ? <p className="text-sm text-danger" role="alert">{scheduleExceptionError}</p> : null}<ul className="space-y-3">{scheduleExceptions.length ? scheduleExceptions.map((scheduleException) => <li className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 text-sm" key={scheduleException.id}><span><span className="font-medium">{formatExceptionDate(scheduleException.fecha)}</span> · {scheduleException.descripcion}</span><Button disabled={isSavingException} onClick={() => void removeScheduleException(scheduleException)} size="sm" variant="outline">Eliminar</Button></li>) : <li className="text-sm text-text-secondary">No hay próximas excepciones.</li>}</ul><form className="grid gap-3 sm:grid-cols-[minmax(0,180px)_1fr_auto] sm:items-end" onSubmit={submitScheduleException}><Input label="Fecha" onChange={(event) => setExceptionDate(event.target.value)} required type="date" value={exceptionDate} /><Input label="Descripción" onChange={(event) => setExceptionDescription(event.target.value)} placeholder="Jornada de salud comunitaria" required value={exceptionDescription} /><Button disabled={isSavingException} type="submit">{isSavingException ? "Agregando..." : "Agregar"}</Button></form></div></Card> : null}
-    <Modal isOpen={isModalOpen} onClose={closeModal} title={editingAppointment ? "Editar cita" : "Nueva cita"}><CitaForm appointment={editingAppointment} isSubmitting={isSubmitting} key={editingAppointment?.id ?? "new"} onCancel={closeModal} onSubmit={submitAppointment} professionals={professionals} submitError={formError} /></Modal>
+    <PageMessage message={scheduleExceptionError} />
+    {hasPermission(user, "citas.gestionar_excepciones") ? <Card title="Días de excepción (horario completo)"><div className="space-y-4"><ul className="space-y-3">{scheduleExceptions.length ? scheduleExceptions.map((scheduleException) => <li className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 text-sm" key={scheduleException.id}><span><span className="font-medium">{formatExceptionDate(scheduleException.fecha)}</span> · {scheduleException.descripcion}</span><Button disabled={isSavingException} onClick={() => void removeScheduleException(scheduleException)} size="sm" variant="outline">Eliminar</Button></li>) : <li className="text-sm text-text-secondary">No hay próximas excepciones.</li>}</ul><form className="grid gap-3 sm:grid-cols-[minmax(0,180px)_1fr_auto] sm:items-end" onSubmit={submitScheduleException}><Input label="Fecha" onChange={(event) => setExceptionDate(event.target.value)} required type="date" value={exceptionDate} /><Input label="Descripción" onChange={(event) => setExceptionDescription(event.target.value)} placeholder="Jornada de salud comunitaria" required value={exceptionDescription} /><Button disabled={isSavingException} type="submit">{isSavingException ? "Agregando..." : "Agregar"}</Button></form></div></Card> : null}
+    <Modal isOpen={isModalOpen} onClose={() => void closeModal()} title={editingAppointment ? "Editar cita" : "Nueva cita"}><CitaForm appointment={editingAppointment} isSubmitting={isSubmitting} key={editingAppointment?.id ?? "new"} onCancel={() => void closeModal()} onDirtyChange={setIsFormDirty} onSubmit={submitAppointment} professionals={professionals} submitError={formError} /></Modal>
   </div>;
 }
 

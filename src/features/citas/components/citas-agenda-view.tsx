@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, Icon, Input, Select, Table, type BadgeTone, type IconName, type TableColumn } from "@/components/ui";
+import { Badge, Button, Card, Icon, Input, PageMessage, Select, Table, type BadgeTone, type IconName, type TableColumn } from "@/components/ui";
 import { CLINIC_TIMEZONE, todayInClinicTimezone } from "@/lib/dates";
 import { changeAppointmentStatus, CitasApiError, listAppointments, type Appointment, type AppointmentStatus, type PagedAppointments, type Professional } from "../api";
 
@@ -64,8 +64,8 @@ export function CitasAgendaView({ professionals, refreshKey, onEdit }: CitasAgen
 
   return <section className="space-y-4">
     <Card title="Agenda diaria"><div className="grid gap-4 sm:grid-cols-2"><Input label="Fecha" onChange={(event) => setFecha(event.target.value)} type="date" value={fecha} /><Select label="Profesional" onChange={(event) => setProfesionalId(event.target.value)} options={[{ label: "Todas las profesionales", value: "" }, ...professionals.map((professional) => ({ label: professional.nombreCompleto, value: professional.id }))]} value={profesionalId} /></div></Card>
-    {actionError ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{actionError}</span></div> : null}
-    {loadError ? <Card><div className="space-y-3"><p className="text-sm text-danger" role="alert">{loadError}</p><Button onClick={() => setReloadKey((value) => value + 1)} variant="outline">Reintentar</Button></div></Card> : null}
+    <PageMessage message={actionError} />
+    {loadError ? <Card><div className="space-y-3"><Button onClick={() => setReloadKey((value) => value + 1)} variant="outline">Reintentar</Button></div><PageMessage message={loadError} /></Card> : null}
     {!loadError ? (isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando agenda...</p> : <Table caption="Agenda de citas" columns={columns} data={result.items} emptyMessage="No hay citas para esta fecha." />) : null}
   </section>;
 }

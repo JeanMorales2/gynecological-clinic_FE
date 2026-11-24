@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge, Card, Icon, Table, type BadgeTone } from "@/components/ui";
+import { Badge, Card, Icon, PageMessage, Table, type BadgeTone } from "@/components/ui";
 import { listEmailNotifications, NotificacionesApiError, type EmailNotification, type EmailNotificationStatus, type PagedEmailNotifications } from "../api";
 
 const tones: Record<EmailNotificationStatus, BadgeTone> = { Enviado: "success", Fallido: "danger", Pendiente: "info" };
@@ -35,7 +35,7 @@ export function NotificationsHistory({ refreshKey }: { refreshKey: number }) {
   }, [page, refreshKey]);
 
   if (loading) return <p className="text-sm text-text-secondary">Cargando historial de correos...</p>;
-  if (error) return <Card><p className="flex items-center gap-2 text-sm text-danger" role="alert"><Icon name="alert" size={16} />{error}</p></Card>;
+  if (error) return <><PageMessage message={error} /><Card><p className="text-sm text-text-secondary">No se pudo cargar el historial de correos.</p></Card></>;
 
   const data = result?.items ?? [];
   const totalPages = Math.max(1, Math.ceil((result?.totalCount ?? 0) / (result?.pageSize ?? 20)));

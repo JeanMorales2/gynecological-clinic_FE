@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, Table, type BadgeTone } from "@/components/ui";
+import { Badge, Button, Card, PageMessage, Table, useConfirmDialog, type BadgeTone } from "@/components/ui";
 import {
   FacturacionApiError,
   listInvoices,
@@ -27,6 +27,7 @@ export function InvoicesList({
   onPay: (invoice: Invoice) => void;
   onVoid: (invoice: Invoice) => void;
 }) {
+  const { confirm } = useConfirmDialog();
   const [items, setItems] = useState<Invoice[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -56,14 +57,7 @@ export function InvoicesList({
   }, [patientId, estado, refreshKey]);
   if (loading)
     return <p className="text-sm text-text-secondary">Cargando facturas...</p>;
-  if (error)
-    return (
-      <Card>
-        <p className="text-sm text-danger" role="alert">
-          {error}
-        </p>
-      </Card>
-    );
+  if (error) return <><PageMessage message={error} /><Card><div /></Card></>;
   return (
     <Table
       columns={[
@@ -103,14 +97,9 @@ export function InvoicesList({
                   Cobrar
                 </Button>
                 <Button
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        `¿Anular la factura ${invoice.numeroFactura}? Esta acción no se puede deshacer.`,
-                      )
-                    )
-                      onVoid(invoice);
-                  }}
+                  onClick={() => void (async () => {
+                    if (await confirm(`¿Anular la factura ${invoice.numeroFactura}? Esta acción no se puede deshacer.`, { danger: true, confirmLabel: "Anular" })) onVoid(invoice);
+                  })()}
                   size="sm"
                   variant="outline"
                 >

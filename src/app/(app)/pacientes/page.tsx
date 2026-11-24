@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Card, Icon, Input, Modal } from "@/components/ui";
+import { Button, Card, Icon, Input, Modal, PageMessage, useConfirmDialog } from "@/components/ui";
 import { useDebounce } from "@/hooks/use-debounce";
 import { createPatient, deactivatePatient, listPatients, PacienteForm, PacientesApiError, PacientesTable, reactivatePatient, updatePatient, type PagedPatients, type Patient, type PatientInput } from "@/features/pacientes";
 import { createProspect, ProspectosApiError } from "@/features/prospeccion";
@@ -16,6 +16,7 @@ const pageSize = 10;
 const emptyResult: PagedPatients = { items: [], totalCount: 0, page: 1, pageSize };
 
 export default function Page() {
+  const { confirm } = useConfirmDialog();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
   const [page, setPage] = useState(1);
@@ -26,6 +27,7 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const [formError, setFormError] = useState("");
   const [actionError, setActionError] = useState("");
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
@@ -49,9 +51,9 @@ export default function Page() {
   }, [debouncedSearch, page, refreshKey]);
 
   function reload() { setRefreshKey((current) => current + 1); }
-  function openNewPatientModal() { setEditingPatient(null); setFormError(""); setIsModalOpen(true); }
-  function openEditPatientModal(patient: Patient) { setEditingPatient(patient); setFormError(""); setIsModalOpen(true); }
-  function closeModal() { if (!isSubmitting) { setIsModalOpen(false); setFormError(""); } }
+  function openNewPatientModal() { setEditingPatient(null); setFormError(""); setIsFormDirty(false); setIsModalOpen(true); }
+  function openEditPatientModal(patient: Patient) { setEditingPatient(patient); setFormError(""); setIsFormDirty(false); setIsModalOpen(true); }
+  async function closeModal() { if (isSubmitting) return; if (isFormDirty && !(await confirm("Tenés cambios sin guardar. Si salís ahora, se van a perder. ¿Querés salir igual?", { danger: true, confirmLabel: "Salir sin guardar" }))) return; setIsModalOpen(false); setFormError(""); setIsFormDirty(false); }
 
   async function handleSubmit(values: PatientInput, referidos?: ReferidoInput[]) {
     setIsSubmitting(true);
@@ -85,7 +87,7 @@ export default function Page() {
   }
 
   async function handleDeactivate(patient: Patient) {
-    if (!window.confirm(`¿Desactivar a ${patient.nombreCompleto}?`)) return;
+    if (!(await confirm(`¿Desactivar a ${patient.nombreCompleto}?`, { danger: true, confirmLabel: "Desactivar" }))) return;
     setActionError("");
     setIsUpdatingId(patient.id);
     try { await deactivatePatient(patient.id); reload(); }
@@ -94,6 +96,7 @@ export default function Page() {
   }
 
   async function handleReactivate(patient: Patient) {
+    if (!(await confirm(`¿Reactivar a ${patient.nombreCompleto}?`, { confirmLabel: "Reactivar" }))) return;
     setActionError("");
     setIsUpdatingId(patient.id);
     try { await reactivatePatient(patient.id); reload(); }
@@ -108,11 +111,11 @@ export default function Page() {
       <div className="w-full lg:max-w-sm"><Input label="Buscar pacientes" onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Buscar por nombre" value={search} /></div>
       <Button leadingIcon={<Icon name="plus" size={18} />} onClick={openNewPatientModal}>Nuevo paciente</Button>
     </div>
-    {actionError ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{actionError}</span></div> : null}
-    {loadError ? <Card><div className="space-y-3"><p className="text-sm text-danger" role="alert">{loadError}</p><Button onClick={reload} variant="outline">Reintentar</Button></div></Card> : null}
+    <PageMessage message={actionError} />
+    {loadError ? <><PageMessage message={loadError} /><Card><div className="space-y-3"><Button onClick={reload} variant="outline">Reintentar</Button></div></Card></> : null}
     {!loadError ? (isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando pacientes...</p> : <PacientesTable isUpdatingId={isUpdatingId} onDeactivate={(patient) => void handleDeactivate(patient)} onEdit={openEditPatientModal} onNextPage={() => setPage((current) => Math.min(current + 1, totalPages))} onPreviousPage={() => setPage((current) => Math.max(current - 1, 1))} onReactivate={(patient) => void handleReactivate(patient)} page={result.page} pageSize={result.pageSize} patients={result.items} totalCount={result.totalCount} />) : null}
     <Modal isOpen={isModalOpen} onClose={closeModal} title={editingPatient ? "Editar paciente" : "Nuevo paciente"}>
-      <PacienteForm isSubmitting={isSubmitting} key={editingPatient?.id ?? "new"} onCancel={closeModal} onSubmit={handleSubmit} patient={editingPatient} submitError={formError} />
+      <PacienteForm isSubmitting={isSubmitting} key={editingPatient?.id ?? "new"} onCancel={() => void closeModal()} onDirtyChange={setIsFormDirty} onSubmit={handleSubmit} patient={editingPatient} submitError={formError} />
     </Modal>
   </div>;
 }

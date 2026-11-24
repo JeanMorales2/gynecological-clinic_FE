@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, Icon, Select, type BadgeTone, type IconName } from "@/components/ui";
+import { Badge, Button, Card, Icon, PageMessage, Select, type BadgeTone, type IconName } from "@/components/ui";
 import { HistoriaClinicaApiError, listClinicalEntries, type ClinicalEntry, type ClinicalEntryType, type PagedClinicalEntries } from "../api";
 
 type ClinicalTimelineProps = { patientId: string; canManage: boolean; refreshKey: number; onEdit: (entry: ClinicalEntry) => void };
@@ -36,7 +36,7 @@ export function ClinicalTimeline({ canManage, onEdit, patientId, refreshKey }: C
 
   return <section className="space-y-4">
     <div className="max-w-xs"><Select label="Filtrar por tipo" onChange={(event) => setTipo(event.target.value as ClinicalEntryType | "")} options={[{ label: "Todos los tipos", value: "" }, ...Object.entries(clinicalTypePresentation).map(([value, presentation]) => ({ value, label: presentation.label }))]} value={tipo} /></div>
-    {error ? <Card><div className="space-y-3"><p className="text-sm text-danger" role="alert">{error}</p><Button onClick={() => setRetryKey((value) => value + 1)} variant="outline">Reintentar</Button></div></Card> : null}
+    {error ? <Card><div className="space-y-3"><Button onClick={() => setRetryKey((value) => value + 1)} variant="outline">Reintentar</Button></div><PageMessage message={error} /></Card> : null}
     {!error && isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando historia clínica...</p> : null}
     {!error && !isLoading && result.items.length === 0 ? <Card><div className="flex items-start gap-3"><Icon className="mt-0.5 text-text-secondary" name="clipboard" size={22} /><div><h2 className="font-semibold text-text">Sin entradas clínicas</h2><p className="mt-1 text-sm text-text-secondary">Todavía no hay registros para este paciente.</p></div></div></Card> : null}
     {!error && !isLoading ? <ol aria-label="Línea de tiempo clínica" className="space-y-4">{result.items.map((entry) => {

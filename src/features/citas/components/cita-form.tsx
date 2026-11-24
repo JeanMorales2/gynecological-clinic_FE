@@ -12,6 +12,7 @@ type CitaFormProps = {
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: AppointmentInput) => Promise<void>;
 };
 
@@ -21,7 +22,7 @@ function toLocalInputValue(value: string) {
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }
 
-export function CitaForm({ appointment, professionals, isSubmitting, onCancel, onSubmit, submitError }: CitaFormProps) {
+export function CitaForm({ appointment, professionals, isSubmitting, onCancel, onDirtyChange, onSubmit, submitError }: CitaFormProps) {
   const [selectedPatient, setSelectedPatient] = useState<Pick<Patient, "id" | "nombreCompleto"> | null>(appointment ? { id: appointment.patientId, nombreCompleto: appointment.pacienteNombreCompleto } : null);
   const [profesionalId, setProfesionalId] = useState(appointment?.profesionalId ?? "");
   const [fechaHoraLocal, setFechaHoraLocal] = useState(appointment ? toLocalInputValue(appointment.fechaHoraInicio) : toLocalInputValue(new Date().toISOString()));
@@ -41,7 +42,7 @@ export function CitaForm({ appointment, professionals, isSubmitting, onCancel, o
   }
 
   const error = validationError || submitError;
-  return <form className="space-y-4" onSubmit={handleSubmit}>
+  return <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={handleSubmit}>
     {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
     <PatientSearchPicker initialSearch={appointment?.pacienteNombreCompleto ?? ""} onSelect={setSelectedPatient} selectedPatient={selectedPatient} />
     <div className="grid gap-4 sm:grid-cols-2">

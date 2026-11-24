@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Badge, Button, Icon, Input, Tabs } from "@/components/ui";
+import { Badge, Button, Icon, Input, Tabs, useConfirmDialog } from "@/components/ui";
 import { todayInClinicTimezone } from "@/lib/dates";
 import { addFamilyMedicalHistory, listFamilyMedicalHistory, PacientesApiError, removeFamilyMedicalHistory, type FamilyMedicalHistory, type Patient, type PatientInput } from "../api";
 
@@ -16,10 +16,12 @@ type PacienteFormProps = {
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: PatientInput, referidos?: ReferidoInput[]) => Promise<void>;
 };
 
-export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submitError }: PacienteFormProps) {
+export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, patient, submitError }: PacienteFormProps) {
+  const { confirm } = useConfirmDialog();
   const [nombreCompleto, setNombreCompleto] = useState(patient?.nombreCompleto ?? "");
   const [fechaNacimiento, setFechaNacimiento] = useState(patient?.fechaNacimiento ?? "");
   const [telefono, setTelefono] = useState(patient?.telefono ?? "");
@@ -103,7 +105,7 @@ export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submit
   }
 
   async function deleteFamilyHistory(history: FamilyMedicalHistory) {
-    if (!patient || !window.confirm(`¿Eliminar el antecedente familiar \"${history.condicion}\"?`)) return;
+    if (!patient || !(await confirm(`¿Eliminar el antecedente familiar \"${history.condicion}\"?`, { danger: true, confirmLabel: "Eliminar" }))) return;
     setFamilyMedicalHistoryError("");
     try {
       await removeFamilyMedicalHistory(patient.id, history.id);
@@ -114,7 +116,7 @@ export function PacienteForm({ isSubmitting, onCancel, onSubmit, patient, submit
   }
 
   const error = validationError || submitError;
-  return <form className="space-y-4" onSubmit={handleSubmit}>
+  return <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={handleSubmit}>
     {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
     <Tabs tabs={[
       {

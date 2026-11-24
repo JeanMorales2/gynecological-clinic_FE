@@ -12,6 +12,7 @@ type ClinicalEntryFormProps = {
   isSubmitting: boolean;
   submitError: string;
   onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: ClinicalEntryFormValues) => Promise<void>;
 };
 
@@ -25,7 +26,7 @@ const typeOptions = [
 
 const today = todayInClinicTimezone();
 
-export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onSubmit, submitError }: ClinicalEntryFormProps) {
+export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onDirtyChange, onSubmit, submitError }: ClinicalEntryFormProps) {
   const [tipo, setTipo] = useState<ClinicalEntryType>(entry?.tipo ?? "Consulta");
   const [fecha, setFecha] = useState(entry?.fecha ?? today);
   const [motivo, setMotivo] = useState(entry?.motivo ?? "");
@@ -50,7 +51,7 @@ export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onSubmit, sub
   }
 
   const error = validationError || submitError;
-  return <form className="space-y-4" onSubmit={handleSubmit}>
+  return <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={handleSubmit}>
     {error ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{error}</span></div> : null}
     <div className="grid gap-4 sm:grid-cols-2">
       <Select label="Tipo de entrada" onChange={(event) => setTipo(event.target.value as ClinicalEntryType)} options={typeOptions} value={tipo} />

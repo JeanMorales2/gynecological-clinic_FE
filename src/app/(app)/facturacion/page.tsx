@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PatientSearchPicker } from "@/components/patient-search-picker";
-import { Button, Card, Icon, Modal, Select } from "@/components/ui";
+import { Button, Card, Icon, Modal, PageMessage, Select, useConfirmDialog } from "@/components/ui";
 import type { Patient } from "@/features/pacientes";
 import {
   createInvoice,
@@ -17,6 +17,7 @@ import {
 } from "@/features/facturacion";
 import { hasPermission, useSession } from "@/stores/session";
 export default function Page() {
+  const { confirm } = useConfirmDialog();
   const { user } = useSession();
   const [patient, setPatient] = useState<Pick<
     Patient,
@@ -26,14 +27,16 @@ export default function Page() {
   const [mode, setMode] = useState<"new" | "pay" | null>(null);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const canManage = hasPermission(user, "facturacion.gestionar");
-  function close() {
-    if (!submitting) {
-      setMode(null);
-      setError("");
-    }
+  async function close() {
+    if (submitting) return;
+    if (isFormDirty && !(await confirm("Tenés cambios sin guardar. Si salís ahora, se van a perder. ¿Querés salir igual?", { danger: true, confirmLabel: "Salir sin guardar" }))) return;
+    setMode(null);
+    setError("");
+    setIsFormDirty(false);
   }
   async function create(items: InvoiceItem[]) {
     if (!patient) return;
@@ -76,8 +79,9 @@ export default function Page() {
     }
   }
   async function handleVoid(selectedInvoice: Invoice) {
-    await voidInvoice(selectedInvoice.id);
-    setRefreshKey((value) => value + 1);
+    setError("");
+    try { await voidInvoice(selectedInvoice.id); setRefreshKey((value) => value + 1); }
+    catch (reason) { setError(reason instanceof FacturacionApiError ? reason.message : "No se pudo anular la factura."); }
   }
   return (
     <div className="space-y-6">
@@ -93,7 +97,7 @@ export default function Page() {
         {patient && canManage ? (
           <Button
             leadingIcon={<Icon name="plus" size={18} />}
-            onClick={() => setMode("new")}
+            onClick={() => { setIsFormDirty(false); setMode("new"); }}
           >
             Nueva factura
           </Button>
@@ -126,24 +130,27 @@ export default function Page() {
         onPay={(value) => {
           setInvoice(value);
           setError("");
-          setMode("pay");
+          setIsFormDirty(false); setMode("pay");
         }}
         onVoid={(value) => void handleVoid(value)}
         patientId={patient?.id}
         refreshKey={refreshKey}
       />
-      <Modal isOpen={mode === "new"} onClose={close} title="Nueva factura">
+      {mode === null ? <PageMessage message={error} /> : null}
+      <Modal isOpen={mode === "new"} onClose={() => void close()} title="Nueva factura">
         <InvoiceForm
           isSubmitting={submitting}
-          onCancel={close}
+          onCancel={() => void close()}
+          onDirtyChange={setIsFormDirty}
           onSubmit={create}
           submitError={error}
         />
       </Modal>
-      <Modal isOpen={mode === "pay"} onClose={close} title="Registrar pago">
+      <Modal isOpen={mode === "pay"} onClose={() => void close()} title="Registrar pago">
         <MarkPaidForm
           isSubmitting={submitting}
-          onCancel={close}
+          onCancel={() => void close()}
+          onDirtyChange={setIsFormDirty}
           onSubmit={pay}
           submitError={error}
         />

@@ -9,11 +9,12 @@ export type ModalProps = {
   title: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
+  overlayClassName?: string;
 };
 
 const focusableSelector = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
 
-export function Modal({ children, footer, isOpen, onClose, title }: ModalProps) {
+export function Modal({ children, footer, isOpen, onClose, overlayClassName = "", title }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
@@ -62,7 +63,7 @@ export function Modal({ children, footer, isOpen, onClose, title }: ModalProps) 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 ${overlayClassName}`}
       onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
     >
       <div

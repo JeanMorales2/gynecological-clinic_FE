@@ -1,4 +1,61 @@
 "use client";
 import { useState, type FormEvent } from "react";
 import { Button, Icon, Select } from "@/components/ui";
-export function MarkPaidForm({ isSubmitting, submitError, onCancel, onSubmit }: { isSubmitting: boolean; submitError: string; onCancel: () => void; onSubmit: (method: string) => Promise<void> }) { const [method, setMethod] = useState(""); const [validationError, setValidationError] = useState(""); async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!method) { setValidationError("Elegí un método de pago."); return; } setValidationError(""); await onSubmit(method); } const error = validationError || submitError; return <form className="space-y-4" onSubmit={submit}>{error ? <div className="flex gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} />{error}</div> : null}<Select label="Método de pago" onChange={(event) => setMethod(event.target.value)} options={[{ label: "Seleccioná un método", value: "" }, { label: "Efectivo", value: "Efectivo" }, { label: "Tarjeta", value: "Tarjeta" }, { label: "Transferencia", value: "Transferencia" }]} value={method} /><div className="flex justify-end gap-3"><Button disabled={isSubmitting} onClick={onCancel} variant="outline">Cancelar</Button><Button disabled={isSubmitting} type="submit">{isSubmitting ? "Guardando..." : "Marcar pagada"}</Button></div></form>; }
+export function MarkPaidForm({
+  isSubmitting,
+  submitError,
+  onCancel,
+  onDirtyChange,
+  onSubmit,
+}: {
+  isSubmitting: boolean;
+  submitError: string;
+  onCancel: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
+  onSubmit: (method: string) => Promise<void>;
+}) {
+  const [method, setMethod] = useState("");
+  const [validationError, setValidationError] = useState("");
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!method) {
+      setValidationError("Elegí un método de pago.");
+      return;
+    }
+    setValidationError("");
+    await onSubmit(method);
+  }
+  const error = validationError || submitError;
+  return (
+    <form className="space-y-4" onChange={() => onDirtyChange?.(true)} onSubmit={submit}>
+      {error ? (
+        <div
+          className="flex gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger"
+          role="alert"
+        >
+          <Icon name="alert" size={18} />
+          {error}
+        </div>
+      ) : null}
+      <Select
+        label="Método de pago"
+        onChange={(event) => setMethod(event.target.value)}
+        options={[
+          { label: "Seleccioná un método", value: "" },
+          { label: "Efectivo", value: "Efectivo" },
+          { label: "Tarjeta", value: "Tarjeta" },
+          { label: "Transferencia", value: "Transferencia" },
+        ]}
+        value={method}
+      />
+      <div className="flex justify-end gap-3">
+        <Button disabled={isSubmitting} onClick={onCancel} variant="outline">
+          Cancelar
+        </Button>
+        <Button disabled={isSubmitting} type="submit">
+          {isSubmitting ? "Guardando..." : "Marcar pagada"}
+        </Button>
+      </div>
+    </form>
+  );
+}
