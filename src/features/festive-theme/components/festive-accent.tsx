@@ -39,6 +39,7 @@ export function FestiveAccent({ variant }: { variant: "icon" | "banner" }) {
       <span
         aria-label={active.label}
         className="festive-glow inline-flex size-9 items-center justify-center rounded-lg border"
+        role="img"
         style={accentStyle}
         title={active.label}
       >
@@ -51,10 +52,10 @@ export function FestiveAccent({ variant }: { variant: "icon" | "banner" }) {
     <div
       className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium"
       role="status"
-      style={accentStyle}
+      style={{ backgroundColor: accentStyle.backgroundColor, borderColor: accentStyle.borderColor }}
     >
-      <Icon className="festive-icon" name={active.icon} size={18} />
-      <span>{active.label}</span>
+      <Icon className="festive-icon" name={active.icon} size={18} style={{ color: active.accentColor }} />
+      <span className="text-text">{active.label}</span>
     </div>
   );
 }

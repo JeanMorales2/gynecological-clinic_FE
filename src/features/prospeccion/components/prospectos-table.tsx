@@ -46,7 +46,7 @@ export function ProspectosTable({ onConvert, onEdit, onInvite, onNextPage, onPre
         <div className="flex items-center gap-2">
           <Button aria-label={`Editar a ${prospect.nombreCompleto}`} disabled={prospect.estado === "Convertido"} onClick={() => onEdit(prospect)} size="sm" variant="ghost">Editar</Button>
           {prospect.email && prospect.estado !== "Convertido" ? <Button aria-label={`Invitar por correo a ${prospect.nombreCompleto}`} onClick={() => onInvite(prospect)} size="sm" variant="ghost">Invitar por correo</Button> : null}
-          {prospect.estado !== "Convertido" ? <Button aria-label={`Convertir a ${prospect.nombreCompleto} en paciente`} onClick={() => onConvert(prospect)} size="sm" variant="outline">Convertir a paciente</Button> : null}
+          {prospect.estado !== "Convertido" ? <Button aria-label={`Convertir a paciente: ${prospect.nombreCompleto}`} onClick={() => onConvert(prospect)} size="sm" variant="outline">Convertir a paciente</Button> : null}
         </div>
       ),
     },

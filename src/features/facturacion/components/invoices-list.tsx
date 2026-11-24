@@ -85,7 +85,7 @@ export function InvoicesList({
         },
         {
           key: "id",
-          header: "",
+          header: "Acciones",
           render: (invoice) =>
             canManage && invoice.estado === "Pendiente" ? (
               <div className="flex gap-2">

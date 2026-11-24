@@ -108,7 +108,6 @@ export function Sidebar({ className = "", onNavigate }: SidebarProps) {
     >
       <div className="flex h-16 items-center px-6">
         <Link
-          aria-label="Ir al inicio"
           className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-primary"
           href="/"
           onClick={onNavigate}
