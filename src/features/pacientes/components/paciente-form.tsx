@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Badge, Button, Icon, Input, Tabs, useConfirmDialog } from "@/components/ui";
+import { Badge, Button, Icon, Input, Select, Tabs, useConfirmDialog } from "@/components/ui";
 import { todayInClinicTimezone } from "@/lib/dates";
 import { addFamilyMedicalHistory, listFamilyMedicalHistory, PacientesApiError, removeFamilyMedicalHistory, type FamilyMedicalHistory, type Patient, type PatientInput } from "../api";
 
@@ -32,6 +32,11 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
   const [enfermedadesCronicas, setEnfermedadesCronicas] = useState(patient?.enfermedadesCronicas ?? "");
   const [etsIts, setEtsIts] = useState(patient?.etsIts ?? "");
   const [vicios, setVicios] = useState(patient?.vicios ?? "");
+  const [tipoSangre, setTipoSangre] = useState(patient?.tipoSangre ?? "");
+  const [gestas, setGestas] = useState(patient?.gestas?.toString() ?? "");
+  const [partos, setPartos] = useState(patient?.partos?.toString() ?? "");
+  const [cesareas, setCesareas] = useState(patient?.cesareas?.toString() ?? "");
+  const [abortos, setAbortos] = useState(patient?.abortos?.toString() ?? "");
   const [familyMedicalHistories, setFamilyMedicalHistories] = useState<FamilyMedicalHistory[]>([]);
   const [familyMedicalHistoryCondicion, setFamilyMedicalHistoryCondicion] = useState("");
   const [familyMedicalHistoryParentesco, setFamilyMedicalHistoryParentesco] = useState("");
@@ -72,6 +77,11 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
       enfermedadesCronicas: enfermedadesCronicas.trim() || null,
       etsIts: etsIts.trim() || null,
       vicios: vicios.trim() || null,
+      tipoSangre: tipoSangre || null,
+      gestas: gestas.trim() ? Number(gestas) : null,
+      partos: partos.trim() ? Number(partos) : null,
+      cesareas: cesareas.trim() ? Number(cesareas) : null,
+      abortos: abortos.trim() ? Number(abortos) : null,
     };
     const referidos = !patient ? [
       { nombreCompleto: referido1NombreCompleto, telefono: referido1Telefono, telefonoAlternativo: referido1TelefonoAlternativo },
@@ -155,6 +165,13 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
             <span>Vicios</span>
             <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setVicios(event.target.value)} value={vicios} />
           </label>
+          <Select label="Tipo de sangre" onChange={(event) => setTipoSangre(event.target.value)} options={[{ label: "No registrado", value: "" }, ...["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"].map((tipo) => ({ label: tipo, value: tipo }))]} value={tipoSangre} />
+          <div className="sm:col-span-2 grid grid-cols-4 gap-3">
+            <Input label="Gestas (G)" min={0} onChange={(event) => setGestas(event.target.value)} type="number" value={gestas} />
+            <Input label="Partos (P)" min={0} onChange={(event) => setPartos(event.target.value)} type="number" value={partos} />
+            <Input label="Cesáreas (C)" min={0} onChange={(event) => setCesareas(event.target.value)} type="number" value={cesareas} />
+            <Input label="Abortos (A)" min={0} onChange={(event) => setAbortos(event.target.value)} type="number" value={abortos} />
+          </div>
         </div>,
       },
       ...(patient ? [{

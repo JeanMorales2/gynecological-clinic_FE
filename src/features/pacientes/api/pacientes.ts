@@ -10,6 +10,11 @@ export type Patient = {
   enfermedadesCronicas: string | null;
   etsIts: string | null;
   vicios: string | null;
+  tipoSangre: string | null;
+  gestas: number | null;
+  partos: number | null;
+  cesareas: number | null;
+  abortos: number | null;
   activo: boolean;
   createdAtUtc: string;
 };
