@@ -109,8 +109,10 @@ export default function Page() {
   async function handleInvite(prospect: Prospect) {
     setInviteMessage("");
     try {
-      await inviteProspect(prospect.id);
-      setInviteMessage("La invitación por correo se procesó correctamente.");
+      const result = await inviteProspect(prospect.id);
+      setInviteMessage(result.emailEnviado
+        ? "El correo de invitación se envió correctamente."
+        : `No se pudo enviar el correo de invitación${result.errorEnvio ? `: ${result.errorEnvio}` : "."}`);
       reload();
     } catch (reason) {
       setInviteMessage(reason instanceof ProspectosApiError ? reason.message : "No se pudo procesar la invitación por correo.");

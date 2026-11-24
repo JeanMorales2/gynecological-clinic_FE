@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Icon, Input, Modal } from "@/components/ui";
 import { useDebounce } from "@/hooks/use-debounce";
-import { createPatient, deactivatePatient, listPatients, PacienteForm, PacientesApiError, PacientesTable, updatePatient, type PagedPatients, type Patient, type PatientInput } from "@/features/pacientes";
+import { createPatient, deactivatePatient, listPatients, PacienteForm, PacientesApiError, PacientesTable, reactivatePatient, updatePatient, type PagedPatients, type Patient, type PatientInput } from "@/features/pacientes";
 import { createProspect, ProspectosApiError } from "@/features/prospeccion";
 
 type ReferidoInput = {
@@ -93,6 +93,14 @@ export default function Page() {
     finally { setIsUpdatingId(null); }
   }
 
+  async function handleReactivate(patient: Patient) {
+    setActionError("");
+    setIsUpdatingId(patient.id);
+    try { await reactivatePatient(patient.id); reload(); }
+    catch (reason) { setActionError(reason instanceof PacientesApiError ? reason.message : "No se pudo reactivar el paciente."); }
+    finally { setIsUpdatingId(null); }
+  }
+
   const totalPages = Math.max(1, Math.ceil(result.totalCount / pageSize));
   return <div className="space-y-6">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -102,7 +110,7 @@ export default function Page() {
     </div>
     {actionError ? <div className="flex items-start gap-2 rounded-lg bg-danger-bg p-3 text-sm text-danger" role="alert"><Icon name="alert" size={18} /><span>{actionError}</span></div> : null}
     {loadError ? <Card><div className="space-y-3"><p className="text-sm text-danger" role="alert">{loadError}</p><Button onClick={reload} variant="outline">Reintentar</Button></div></Card> : null}
-    {!loadError ? (isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando pacientes...</p> : <PacientesTable isUpdatingId={isUpdatingId} onDeactivate={(patient) => void handleDeactivate(patient)} onEdit={openEditPatientModal} onNextPage={() => setPage((current) => Math.min(current + 1, totalPages))} onPreviousPage={() => setPage((current) => Math.max(current - 1, 1))} page={result.page} pageSize={result.pageSize} patients={result.items} totalCount={result.totalCount} />) : null}
+    {!loadError ? (isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando pacientes...</p> : <PacientesTable isUpdatingId={isUpdatingId} onDeactivate={(patient) => void handleDeactivate(patient)} onEdit={openEditPatientModal} onNextPage={() => setPage((current) => Math.min(current + 1, totalPages))} onPreviousPage={() => setPage((current) => Math.max(current - 1, 1))} onReactivate={(patient) => void handleReactivate(patient)} page={result.page} pageSize={result.pageSize} patients={result.items} totalCount={result.totalCount} />) : null}
     <Modal isOpen={isModalOpen} onClose={closeModal} title={editingPatient ? "Editar paciente" : "Nuevo paciente"}>
       <PacienteForm isSubmitting={isSubmitting} key={editingPatient?.id ?? "new"} onCancel={closeModal} onSubmit={handleSubmit} patient={editingPatient} submitError={formError} />
     </Modal>

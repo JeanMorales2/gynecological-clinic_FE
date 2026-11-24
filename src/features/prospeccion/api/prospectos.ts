@@ -79,6 +79,12 @@ export function convertProspect(id: string, input: ConvertProspectInput) {
   });
 }
 
+export type InviteProspectResult = {
+  prospect: Prospect;
+  emailEnviado: boolean;
+  errorEnvio: string | null;
+};
+
 export function inviteProspect(id: string) {
-  return request<Prospect>(`/api/prospectos/${encodeURIComponent(id)}/invitar`, { method: "POST" });
+  return request<InviteProspectResult>(`/api/prospectos/${encodeURIComponent(id)}/invitar`, { method: "POST" });
 }

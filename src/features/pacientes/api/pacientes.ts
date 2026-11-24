@@ -75,6 +75,10 @@ export function deactivatePatient(id: string) {
   return request<Patient>(`/api/pacientes/${encodeURIComponent(id)}/desactivar`, { method: "POST" });
 }
 
+export function reactivatePatient(id: string) {
+  return request<Patient>(`/api/pacientes/${encodeURIComponent(id)}/reactivar`, { method: "POST" });
+}
+
 export function listFamilyMedicalHistory(patientId: string) {
   return request<FamilyMedicalHistory[]>(`/api/pacientes/${encodeURIComponent(patientId)}/antecedentes-familiares`);
 }

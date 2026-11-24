@@ -11,6 +11,7 @@ type PacientesTableProps = {
   isUpdatingId: string | null;
   onEdit: (patient: Patient) => void;
   onDeactivate: (patient: Patient) => void;
+  onReactivate: (patient: Patient) => void;
   onPreviousPage: () => void;
   onNextPage: () => void;
 };
@@ -21,7 +22,7 @@ function formatBirthDate(value: string) {
   return birthDateFormatter.format(new Date(`${value}T12:00:00`));
 }
 
-export function PacientesTable({ isUpdatingId, onDeactivate, onEdit, onNextPage, onPreviousPage, page, pageSize, patients, totalCount }: PacientesTableProps) {
+export function PacientesTable({ isUpdatingId, onDeactivate, onEdit, onNextPage, onPreviousPage, onReactivate, page, pageSize, patients, totalCount }: PacientesTableProps) {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const start = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalCount);
@@ -51,7 +52,9 @@ export function PacientesTable({ isUpdatingId, onDeactivate, onEdit, onNextPage,
       render: (patient) => (
         <div className="flex items-center gap-2">
           <Button aria-label={`Editar a ${patient.nombreCompleto}`} disabled={isUpdatingId === patient.id} onClick={() => onEdit(patient)} size="sm" variant="ghost">Editar</Button>
-          {patient.activo ? <Button aria-label={`Desactivar a ${patient.nombreCompleto}`} disabled={isUpdatingId === patient.id} onClick={() => onDeactivate(patient)} size="sm" variant="ghost">Desactivar</Button> : null}
+          {patient.activo
+            ? <Button aria-label={`Desactivar a ${patient.nombreCompleto}`} disabled={isUpdatingId === patient.id} onClick={() => onDeactivate(patient)} size="sm" variant="ghost">Desactivar</Button>
+            : <Button aria-label={`Reactivar a ${patient.nombreCompleto}`} disabled={isUpdatingId === patient.id} onClick={() => onReactivate(patient)} size="sm" variant="ghost">Reactivar</Button>}
         </div>
       ),
     },
