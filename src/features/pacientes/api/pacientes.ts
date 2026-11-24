@@ -60,6 +60,10 @@ export function listPatients({ search = "", page = 1, pageSize = 10 }: { search?
   return request<PagedPatients>(`/api/pacientes?${query.toString()}`);
 }
 
+export function getPatient(id: string) {
+  return request<Patient>(`/api/pacientes/${encodeURIComponent(id)}`);
+}
+
 export function createPatient(input: PatientInput) {
   return request<Patient>("/api/pacientes", {
     method: "POST",

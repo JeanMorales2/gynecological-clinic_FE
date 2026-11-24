@@ -26,6 +26,7 @@ const navigation: NavigationItem[] = [
   { href: "/prospeccion", label: "Prospección", icon: "funnel" },
   { href: "/citas", label: "Citas y agenda", icon: "calendar" },
   { href: "/historia-clinica", label: "Historia clínica", icon: "clipboard" },
+  { href: "/consultas", label: "Consultas médicas", icon: "clipboard" },
   { href: "/laboratorio-externo", label: "Laboratorio externo", icon: "flask" },
   { href: "/facturacion", label: "Facturación", icon: "receipt" },
   { href: "/inventario", label: "Inventario y stock", icon: "inventory" },
