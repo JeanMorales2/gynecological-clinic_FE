@@ -15,7 +15,7 @@ const statusPresentation: Record<AppointmentStatus, { tone: BadgeTone; icon: Ico
   Finalizada: { tone: "success", icon: "check", label: "Finalizada" },
   NoShow: { tone: "neutral", icon: "circle", label: "No se presentó" },
 };
-const timeFormatter = new Intl.DateTimeFormat("es-NI", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: CLINIC_TIMEZONE });
+const timeFormatter = new Intl.DateTimeFormat("es-NI", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: CLINIC_TIMEZONE });
 
 function nextActions(status: AppointmentStatus): { label: string; target: AppointmentStatus }[] {
   if (status === "PendienteConsulta") return [{ label: "Recepcionar", target: "Recepcionado" }, { label: "No se presentó", target: "NoShow" }];
