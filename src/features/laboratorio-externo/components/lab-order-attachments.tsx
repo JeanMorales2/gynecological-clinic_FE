@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button, useConfirmDialog } from "@/components/ui";
+import { AttachmentPreviewModal, type AttachmentPreviewTarget } from "@/components/attachment-preview-modal";
 import { attachmentDownloadUrl, deleteLabOrderAttachment, LabOrdersApiError, listLabOrderAttachments, type LabOrderAttachment, uploadLabOrderAttachment } from "../api";
 
 function formatSize(bytes: number) {
@@ -16,6 +17,7 @@ export function LabOrderAttachments({ labOrderId, canManage }: { labOrderId: str
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [preview, setPreview] = useState<AttachmentPreviewTarget | null>(null);
 
   useEffect(() => {
     let current = true;
@@ -50,7 +52,8 @@ export function LabOrderAttachments({ labOrderId, canManage }: { labOrderId: str
 
   return <div className="space-y-4">
     {error ? <p className="text-sm text-danger" role="alert">{error}</p> : null}
-    {loading ? <p className="text-sm text-text-secondary">Cargando adjuntos...</p> : attachments.length ? <ul className="space-y-3">{attachments.map((attachment) => <li className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 text-sm" key={attachment.id}><div><a className="font-medium text-primary hover:underline" download href={attachmentDownloadUrl(attachment.id)}>{attachment.nombreArchivo}</a><p className="text-text-secondary">{formatSize(attachment.tamanoBytes)} {"\u00b7"} {new Date(attachment.createdAtUtc).toLocaleString()}</p></div>{canManage ? <Button disabled={submitting} onClick={() => void remove(attachment)} size="sm" variant="outline">Eliminar</Button> : null}</li>)}</ul> : <p className="text-sm text-text-secondary">No hay archivos adjuntos.</p>}
+    {loading ? <p className="text-sm text-text-secondary">Cargando adjuntos...</p> : attachments.length ? <ul className="space-y-3">{attachments.map((attachment) => <li className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 text-sm" key={attachment.id}><div><a className="font-medium text-primary hover:underline" download={attachment.nombreArchivo} href={attachmentDownloadUrl(attachment.id)}>{attachment.nombreArchivo}</a><p className="text-text-secondary">{formatSize(attachment.tamanoBytes)} {"\u00b7"} {new Date(attachment.createdAtUtc).toLocaleString()}</p></div><div className="flex gap-2"><Button onClick={() => setPreview({ url: attachmentDownloadUrl(attachment.id), filename: attachment.nombreArchivo, contentType: attachment.contentType })} size="sm" variant="outline">Ver</Button>{canManage ? <Button disabled={submitting} onClick={() => void remove(attachment)} size="sm" variant="outline">Eliminar</Button> : null}</div></li>)}</ul> : <p className="text-sm text-text-secondary">No hay archivos adjuntos.</p>}
     {canManage ? <div className="flex flex-wrap items-end gap-3 border-t border-border pt-4"><label className="text-sm font-medium text-text"><span className="mb-1 block">Archivo</span><input accept="application/pdf,image/jpeg,image/png" disabled={submitting} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} type="file" /></label><Button disabled={!selectedFile || submitting} onClick={() => void upload()}>{submitting ? "Subiendo..." : "Subir"}</Button></div> : null}
+    <AttachmentPreviewModal attachment={preview} onClose={() => setPreview(null)} />
   </div>;
 }
