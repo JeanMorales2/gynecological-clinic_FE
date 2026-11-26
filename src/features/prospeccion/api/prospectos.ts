@@ -27,7 +27,7 @@ export type ConvertProspectInput = {
   fechaNacimiento: string;
   documentoIdentidad: string | null;
   alergias: string | null;
-  antecedentesRelevantes: string | null;
+  antecedentesPatologicosPersonales: string | null;
 };
 
 export class ProspectosApiError extends Error {

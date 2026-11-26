@@ -18,7 +18,7 @@ export function ConvertirProspectoForm({ isSubmitting, onCancel, onDirtyChange, 
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [documentoIdentidad, setDocumentoIdentidad] = useState("");
   const [alergias, setAlergias] = useState("");
-  const [antecedentesRelevantes, setAntecedentesRelevantes] = useState("");
+  const [antecedentesPatologicosPersonales, setAntecedentesPatologicosPersonales] = useState("");
   const [validationError, setValidationError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,7 +32,7 @@ export function ConvertirProspectoForm({ isSubmitting, onCancel, onDirtyChange, 
       fechaNacimiento,
       documentoIdentidad: documentoIdentidad.trim() || null,
       alergias: alergias.trim() || null,
-      antecedentesRelevantes: antecedentesRelevantes.trim() || null,
+      antecedentesPatologicosPersonales: antecedentesPatologicosPersonales.trim() || null,
     });
   }
 
@@ -47,8 +47,8 @@ export function ConvertirProspectoForm({ isSubmitting, onCancel, onDirtyChange, 
       <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setAlergias(event.target.value)} value={alergias} />
     </label>
     <label className="block space-y-2 text-sm font-medium text-text">
-      <span>Antecedentes relevantes</span>
-      <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setAntecedentesRelevantes(event.target.value)} value={antecedentesRelevantes} />
+      <span>Antecedentes patológicos personales</span>
+      <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setAntecedentesPatologicosPersonales(event.target.value)} value={antecedentesPatologicosPersonales} />
     </label>
     <div className="flex flex-wrap justify-end gap-3 pt-2">
       <Button disabled={isSubmitting} onClick={onCancel} variant="outline">Cancelar</Button>

@@ -28,10 +28,16 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
   const [email, setEmail] = useState(patient?.email ?? "");
   const [documentoIdentidad, setDocumentoIdentidad] = useState(patient?.documentoIdentidad ?? "");
   const [alergias, setAlergias] = useState(patient?.alergias ?? "");
-  const [antecedentesRelevantes, setAntecedentesRelevantes] = useState(patient?.antecedentesRelevantes ?? "");
-  const [enfermedadesCronicas, setEnfermedadesCronicas] = useState(patient?.enfermedadesCronicas ?? "");
-  const [etsIts, setEtsIts] = useState(patient?.etsIts ?? "");
-  const [vicios, setVicios] = useState(patient?.vicios ?? "");
+  const [antecedentesPatologicosPersonales, setAntecedentesPatologicosPersonales] = useState(patient?.antecedentesPatologicosPersonales ?? "");
+  const [antecedentesPatologicosFamiliares, setAntecedentesPatologicosFamiliares] = useState(patient?.antecedentesPatologicosFamiliares ?? "");
+  const [antecedentesQuirurgicos, setAntecedentesQuirurgicos] = useState(patient?.antecedentesQuirurgicos ?? "");
+  const [menarca, setMenarca] = useState(patient?.menarca ?? "");
+  const [ciclos, setCiclos] = useState(patient?.ciclos ?? "");
+  const [ivsa, setIvsa] = useState(patient?.ivsa ?? "");
+  const [fum, setFum] = useState(patient?.fum ?? "");
+  const [mpf, setMpf] = useState(patient?.mpf ?? "");
+  const [pap, setPap] = useState(patient?.pap ?? "");
+  const [complicaciones, setComplicaciones] = useState(patient?.complicaciones ?? "");
   const [tipoSangre, setTipoSangre] = useState(patient?.tipoSangre ?? "");
   const [gestas, setGestas] = useState(patient?.gestas?.toString() ?? "");
   const [partos, setPartos] = useState(patient?.partos?.toString() ?? "");
@@ -73,10 +79,16 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
       email: email.trim() || null,
       documentoIdentidad: documentoIdentidad.trim() || null,
       alergias: alergias.trim() || null,
-      antecedentesRelevantes: antecedentesRelevantes.trim() || null,
-      enfermedadesCronicas: enfermedadesCronicas.trim() || null,
-      etsIts: etsIts.trim() || null,
-      vicios: vicios.trim() || null,
+      antecedentesPatologicosPersonales: antecedentesPatologicosPersonales.trim() || null,
+      antecedentesPatologicosFamiliares: antecedentesPatologicosFamiliares.trim() || null,
+      antecedentesQuirurgicos: antecedentesQuirurgicos.trim() || null,
+      menarca: menarca.trim() || null,
+      ciclos: ciclos.trim() || null,
+      ivsa: ivsa.trim() || null,
+      fum: fum || null,
+      mpf: mpf.trim() || null,
+      pap: pap.trim() || null,
+      complicaciones: complicaciones.trim() || null,
       tipoSangre: tipoSangre || null,
       gestas: gestas.trim() ? Number(gestas) : null,
       partos: partos.trim() ? Number(partos) : null,
@@ -141,7 +153,7 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
         </div>,
       },
       {
-        label: "Antecedentes y alergias",
+        label: "Antecedentes patológicos",
         value: "antecedentes",
         content: <div className="space-y-4">
           {alergias.trim() ? <Badge icon={<Icon name="alert" size={16} />} tone="danger">Alergias registradas: verificá esta información clínica.</Badge> : null}
@@ -150,28 +162,41 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
             <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-danger focus:ring-2 focus:ring-danger" onChange={(event) => setAlergias(event.target.value)} placeholder="Ej.: alergia a penicilina" value={alergias} />
           </label>
           <label className="block space-y-2 text-sm font-medium text-text">
-            <span>Antecedentes relevantes</span>
-            <textarea className="min-h-28 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setAntecedentesRelevantes(event.target.value)} value={antecedentesRelevantes} />
+            <span>Antecedentes patológicos personales</span>
+            <textarea className="min-h-28 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setAntecedentesPatologicosPersonales(event.target.value)} value={antecedentesPatologicosPersonales} />
           </label>
           <label className="block space-y-2 text-sm font-medium text-text">
-            <span>Enfermedades crónicas</span>
-            <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setEnfermedadesCronicas(event.target.value)} value={enfermedadesCronicas} />
+            <span>Antecedentes patológicos familiares</span>
+            <textarea className="min-h-28 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setAntecedentesPatologicosFamiliares(event.target.value)} value={antecedentesPatologicosFamiliares} />
           </label>
           <label className="block space-y-2 text-sm font-medium text-text">
-            <span>ETS/ITS</span>
-            <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setEtsIts(event.target.value)} value={etsIts} />
+            <span>Antecedentes quirúrgicos</span>
+            <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setAntecedentesQuirurgicos(event.target.value)} value={antecedentesQuirurgicos} />
           </label>
-          <label className="block space-y-2 text-sm font-medium text-text">
-            <span>Vicios</span>
-            <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setVicios(event.target.value)} value={vicios} />
-          </label>
+        </div>,
+      },
+      {
+        label: "Antecedentes ginecológicos",
+        value: "antecedentes-ginecologicos",
+        content: <div className="grid gap-4 sm:grid-cols-2">
+          <Input label="Menarca" onChange={(event) => setMenarca(event.target.value)} placeholder="Ej.: 12 años" value={menarca} />
+          <Input label="Ciclos" onChange={(event) => setCiclos(event.target.value)} placeholder="Ej.: 28x5, regulares" value={ciclos} />
+          <Input label="IVSA" onChange={(event) => setIvsa(event.target.value)} placeholder="Ej.: 16 años" value={ivsa} />
+          <Input label="FUM" onChange={(event) => setFum(event.target.value)} type="date" value={fum} />
+          <Input label="MPF" onChange={(event) => setMpf(event.target.value)} placeholder="Método de planificación familiar" value={mpf} />
+          <Input label="PAP" onChange={(event) => setPap(event.target.value)} placeholder="Fecha y/o resultado" value={pap} />
           <Select label="Tipo de sangre" onChange={(event) => setTipoSangre(event.target.value)} options={[{ label: "No registrado", value: "" }, ...["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"].map((tipo) => ({ label: tipo, value: tipo }))]} value={tipoSangre} />
+          <div />
           <div className="sm:col-span-2 grid grid-cols-4 gap-3">
             <Input label="Gestas (G)" min={0} onChange={(event) => setGestas(event.target.value)} type="number" value={gestas} />
             <Input label="Partos (P)" min={0} onChange={(event) => setPartos(event.target.value)} type="number" value={partos} />
             <Input label="Cesáreas (C)" min={0} onChange={(event) => setCesareas(event.target.value)} type="number" value={cesareas} />
             <Input label="Abortos (A)" min={0} onChange={(event) => setAbortos(event.target.value)} type="number" value={abortos} />
           </div>
+          <label className="sm:col-span-2 block space-y-2 text-sm font-medium text-text">
+            <span>Complicaciones</span>
+            <textarea className="min-h-24 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" onChange={(event) => setComplicaciones(event.target.value)} value={complicaciones} />
+          </label>
         </div>,
       },
       ...(patient ? [{
