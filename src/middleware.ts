@@ -5,7 +5,7 @@ const sessionCookieName = "ginecologia_session";
 
 export function middleware(request: NextRequest) {
   const hasSession = Boolean(request.cookies.get(sessionCookieName)?.value);
-  if (request.nextUrl.pathname === "/login") return hasSession ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
+  if (request.nextUrl.pathname === "/login" || request.nextUrl.pathname.startsWith("/login/")) return hasSession ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
   if (request.nextUrl.pathname.startsWith("/ui-kit")) return NextResponse.next();
   if (!hasSession) return NextResponse.redirect(new URL("/login", request.url));
   return NextResponse.next();

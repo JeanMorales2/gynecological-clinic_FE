@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrandMark } from "@/components/brand-mark";
 import { Button, Card, Input } from "@/components/ui";
@@ -34,6 +35,7 @@ export function LoginForm() {
         <Input autoComplete="current-password" label="Contraseña" onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
         <Button className="w-full" disabled={isSubmitting} type="submit">{isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}</Button>
       </form>
+      <p className="mt-4 text-center text-sm text-text-secondary"><Link className="text-primary hover:underline" href="/login/recuperar">¿Olvidaste tu contraseña?</Link></p>
     </Card>
   </div>;
 }
