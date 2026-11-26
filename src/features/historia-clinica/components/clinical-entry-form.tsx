@@ -38,6 +38,7 @@ export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onDirtyChange
   const [examenes, setExamenes] = useState(entry?.examenes ?? "");
   const [pesoKg, setPesoKg] = useState(entry?.pesoKg?.toString() ?? "");
   const [alturaCm, setAlturaCm] = useState(entry?.alturaCm?.toString() ?? "");
+  const [citaSeguimiento, setCitaSeguimiento] = useState(entry?.citaSeguimiento ?? "");
   const [validationError, setValidationError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -47,7 +48,7 @@ export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onDirtyChange
       return;
     }
     setValidationError("");
-    await onSubmit({ tipo, fecha, motivo: motivo.trim(), hallazgos: hallazgos.trim(), diagnostico: diagnostico.trim() || null, indicaciones: indicaciones.trim() || null, tratamiento: tratamiento.trim() || null, medicamentos: medicamentos.trim() || null, examenes: examenes.trim() || null, pesoKg: pesoKg.trim() ? Number(pesoKg) : null, alturaCm: alturaCm.trim() ? Number(alturaCm) : null });
+    await onSubmit({ tipo, fecha, motivo: motivo.trim(), hallazgos: hallazgos.trim(), diagnostico: diagnostico.trim() || null, indicaciones: indicaciones.trim() || null, tratamiento: tratamiento.trim() || null, medicamentos: medicamentos.trim() || null, examenes: examenes.trim() || null, pesoKg: pesoKg.trim() ? Number(pesoKg) : null, alturaCm: alturaCm.trim() ? Number(alturaCm) : null, citaSeguimiento: citaSeguimiento || null });
   }
 
   const error = validationError || submitError;
@@ -65,6 +66,7 @@ export function ClinicalEntryForm({ entry, isSubmitting, onCancel, onDirtyChange
     <label className="block space-y-2 text-sm font-medium text-text"><span>Medicamentos <span className="font-normal text-text-secondary">(opcional)</span></span><textarea className="min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={4000} onChange={(event) => setMedicamentos(event.target.value)} value={medicamentos} /></label>
     <label className="block space-y-2 text-sm font-medium text-text"><span>Exámenes <span className="font-normal text-text-secondary">(opcional)</span></span><textarea className="min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-text outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary" maxLength={4000} onChange={(event) => setExamenes(event.target.value)} value={examenes} /></label>
     <div className="grid gap-4 sm:grid-cols-2"><Input label="Peso (kg)" onChange={(event) => setPesoKg(event.target.value)} step="0.1" type="number" value={pesoKg} /><Input label="Altura (cm)" onChange={(event) => setAlturaCm(event.target.value)} step="0.1" type="number" value={alturaCm} /></div>
+    <Input label="Cita de seguimiento" onChange={(event) => setCitaSeguimiento(event.target.value)} type="date" value={citaSeguimiento} />
     <div className="flex flex-wrap justify-end gap-3 pt-2"><Button disabled={isSubmitting} onClick={onCancel} variant="outline">Cancelar</Button><Button disabled={isSubmitting} type="submit">{isSubmitting ? "Guardando..." : entry ? "Guardar corrección" : "Guardar entrada"}</Button></div>
   </form>;
 }

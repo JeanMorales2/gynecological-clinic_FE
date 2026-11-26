@@ -14,6 +14,7 @@ export type ClinicalEntry = {
   examenes: string | null;
   pesoKg: number | null;
   alturaCm: number | null;
+  citaSeguimiento: string | null;
   registradoPorId: string;
   createdAtUtc: string;
 };
@@ -31,6 +32,7 @@ export type ClinicalEntryInput = {
   examenes: string | null;
   pesoKg: number | null;
   alturaCm: number | null;
+  citaSeguimiento: string | null;
 };
 
 export type ClinicalEntryUpdateInput = Omit<ClinicalEntryInput, "patientId">;
