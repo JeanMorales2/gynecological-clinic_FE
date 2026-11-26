@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button, Icon, Input, Select } from "@/components/ui";
+import { listRoles, RolesApiError } from "@/features/roles";
 import type { StaffRole, StaffUser } from "../api";
 
 export type UsuarioFormValues = {
@@ -21,11 +22,11 @@ type UsuarioFormProps = {
   onSubmit: (values: UsuarioFormValues) => Promise<void>;
 };
 
-const roleOptions = [
-  { value: "Admin", label: "Administrador" },
-  { value: "Recepcionista", label: "Recepcionista" },
-  { value: "Ginecologa", label: "Ginecóloga" },
-];
+const roleLabels: Record<string, string> = {
+  Admin: "Administrador",
+  Recepcionista: "Recepcionista",
+  Ginecologa: "Ginecóloga",
+};
 
 export function UsuarioForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, submitError, user }: UsuarioFormProps) {
   const isEditing = Boolean(user);
@@ -34,7 +35,16 @@ export function UsuarioForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, s
   const [nombreCompleto, setNombreCompleto] = useState(user?.nombreCompleto ?? "");
   const [telefono, setTelefono] = useState(user?.telefono ?? "");
   const [role, setRole] = useState<StaffRole>(user?.role ?? "Recepcionista");
+  const [roleOptions, setRoleOptions] = useState<{ value: string; label: string }[]>([{ value: "Recepcionista", label: "Recepcionista" }]);
   const [validationError, setValidationError] = useState("");
+
+  useEffect(() => {
+    let isCurrent = true;
+    void listRoles()
+      .then((roles) => { if (isCurrent) setRoleOptions(roles.map((rol) => ({ value: rol.nombre, label: roleLabels[rol.nombre] ?? rol.nombre }))); })
+      .catch((reason) => { if (isCurrent && reason instanceof RolesApiError) { /* keep fallback options */ } });
+    return () => { isCurrent = false; };
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

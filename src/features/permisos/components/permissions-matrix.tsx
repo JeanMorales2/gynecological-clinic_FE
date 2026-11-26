@@ -5,6 +5,7 @@ type PermissionRow = PermissionDefinition & { id: string };
 
 type PermissionsMatrixProps = {
   permissions: PermissionDefinition[];
+  roles: string[];
   savingKey: string | null;
   onToggle: (permissionKey: string, role: string, value: boolean) => void;
 };
@@ -37,6 +38,7 @@ function PermissionCheckbox({
 
 export function PermissionsMatrix({
   permissions,
+  roles,
   savingKey,
   onToggle,
 }: PermissionsMatrixProps) {
@@ -58,30 +60,18 @@ export function PermissionsMatrix({
             </div>
           ),
         },
-        {
-          key: "rolesConAcceso",
-          header: "Ginecologa",
-          render: (permission) => (
+        ...roles.map((role) => ({
+          key: role as keyof PermissionRow,
+          header: role,
+          render: (permission: PermissionRow) => (
             <PermissionCheckbox
               onToggle={onToggle}
               permission={permission}
-              role="Ginecologa"
+              role={role}
               savingKey={savingKey}
             />
           ),
-        },
-        {
-          key: "id",
-          header: "Recepcionista",
-          render: (permission) => (
-            <PermissionCheckbox
-              onToggle={onToggle}
-              permission={permission}
-              role="Recepcionista"
-              savingKey={savingKey}
-            />
-          ),
-        },
+        })),
       ]}
       data={rows}
       emptyMessage="No hay permisos para mostrar."

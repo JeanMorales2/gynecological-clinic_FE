@@ -11,7 +11,7 @@ type UsuariosTableProps = {
   onReactivate: (user: StaffUser) => void;
 };
 
-const roleLabels: Record<StaffUser["role"], string> = {
+const roleLabels: Record<string, string> = {
   Admin: "Administrador",
   Recepcionista: "Recepcionista",
   Ginecologa: "Ginecóloga",
@@ -31,7 +31,7 @@ export function UsuariosTable({
       header: "Teléfono",
       render: (user) => user.telefono || "Sin teléfono",
     },
-    { key: "role", header: "Rol", render: (user) => roleLabels[user.role] },
+    { key: "role", header: "Rol", render: (user) => roleLabels[user.role] ?? user.role },
     {
       key: "activo",
       header: "Estado",

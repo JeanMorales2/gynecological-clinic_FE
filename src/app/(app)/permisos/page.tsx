@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Button, Card, Icon, PageMessage } from "@/components/ui";
+import { Button, Card, Icon, Input, PageMessage, useConfirmDialog } from "@/components/ui";
 import {
   listPermissions,
   PermissionsMatrix,
@@ -9,27 +9,34 @@ import {
   setPermissionGrant,
   type PermissionDefinition,
 } from "@/features/permisos";
+import { createRole, deleteRole, listRoles, RolesApiError, type Rol } from "@/features/roles";
 import { useSession } from "@/stores/session";
 
 export default function Page() {
+  const { confirm } = useConfirmDialog();
   const { isLoading: isSessionLoading, user } = useSession();
   const [permissions, setPermissions] = useState<PermissionDefinition[]>([]);
+  const [roles, setRoles] = useState<Rol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [actionError, setActionError] = useState("");
   const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [nuevoRol, setNuevoRol] = useState("");
+  const [isCreatingRol, setIsCreatingRol] = useState(false);
 
-  const loadPermissions = useCallback(async () => {
+  const loadAll = useCallback(async () => {
     setIsLoading(true);
     setLoadError("");
 
     try {
-      setPermissions(await listPermissions());
+      const [loadedPermissions, loadedRoles] = await Promise.all([listPermissions(), listRoles()]);
+      setPermissions(loadedPermissions);
+      setRoles(loadedRoles);
     } catch (reason) {
       setLoadError(
-        reason instanceof PermisosApiError
+        reason instanceof PermisosApiError || reason instanceof RolesApiError
           ? reason.message
-          : "No se pudo cargar la lista de permisos.",
+          : "No se pudo cargar la lista de permisos y roles.",
       );
     } finally {
       setIsLoading(false);
@@ -38,33 +45,8 @@ export default function Page() {
 
   useEffect(() => {
     if (isSessionLoading || user?.role !== "Admin") return;
-
-    let isCurrent = true;
-    async function loadInitialPermissions() {
-      try {
-        const initialPermissions = await listPermissions();
-        if (isCurrent) {
-          setPermissions(initialPermissions);
-          setLoadError("");
-        }
-      } catch (reason) {
-        if (isCurrent) {
-          setLoadError(
-            reason instanceof PermisosApiError
-              ? reason.message
-              : "No se pudo cargar la lista de permisos.",
-          );
-        }
-      } finally {
-        if (isCurrent) setIsLoading(false);
-      }
-    }
-
-    void loadInitialPermissions();
-    return () => {
-      isCurrent = false;
-    };
-  }, [isSessionLoading, user]);
+    void loadAll();
+  }, [isSessionLoading, user, loadAll]);
 
   async function handleToggle(
     permissionKey: string,
@@ -102,6 +84,33 @@ export default function Page() {
     }
   }
 
+  async function handleCreateRole() {
+    const nombre = nuevoRol.trim();
+    if (!nombre) return;
+    setIsCreatingRol(true);
+    setActionError("");
+    try {
+      const created = await createRole(nombre);
+      setRoles((current) => [...current, created]);
+      setNuevoRol("");
+    } catch (reason) {
+      setActionError(reason instanceof RolesApiError ? reason.message : "No se pudo crear el rol.");
+    } finally {
+      setIsCreatingRol(false);
+    }
+  }
+
+  async function handleDeleteRole(rol: Rol) {
+    if (!(await confirm(`¿Eliminar el rol "${rol.nombre}"?`, { danger: true, confirmLabel: "Eliminar" }))) return;
+    setActionError("");
+    try {
+      await deleteRole(rol.nombre);
+      setRoles((current) => current.filter((item) => item.nombre !== rol.nombre));
+    } catch (reason) {
+      setActionError(reason instanceof RolesApiError ? reason.message : "No se pudo eliminar el rol.");
+    }
+  }
+
   if (isSessionLoading) {
     return (
       <p className="text-sm text-text-secondary" role="status">
@@ -121,6 +130,8 @@ export default function Page() {
     );
   }
 
+  const roleNamesForMatrix = roles.filter((rol) => rol.nombre !== "Admin").map((rol) => rol.nombre);
+
   return (
     <div className="space-y-6">
       <div>
@@ -139,7 +150,7 @@ export default function Page() {
       {loadError ? (
         <Card>
           <div className="space-y-3">
-            <Button onClick={() => void loadPermissions()} variant="outline">
+            <Button onClick={() => void loadAll()} variant="outline">
               Reintentar
             </Button>
           </div>
@@ -150,13 +161,36 @@ export default function Page() {
           Cargando permisos...
         </p>
       ) : (
-        <PermissionsMatrix
-          onToggle={(permissionKey, role, otorgado) =>
-            void handleToggle(permissionKey, role, otorgado)
-          }
-          permissions={permissions}
-          savingKey={savingKey}
-        />
+        <>
+          <Card title="Roles">
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {roles.map((rol) => (
+                  <span className="flex items-center gap-2 rounded-full border border-border bg-bg px-3 py-1 text-sm text-text" key={rol.nombre}>
+                    {rol.nombre}
+                    {!rol.esProtegido ? (
+                      <button aria-label={`Eliminar rol ${rol.nombre}`} className="text-text-secondary hover:text-danger" onClick={() => void handleDeleteRole(rol)} type="button">
+                        <Icon name="x" size={14} />
+                      </button>
+                    ) : null}
+                  </span>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="w-full max-w-xs"><Input label="Nuevo rol" onChange={(event) => setNuevoRol(event.target.value)} placeholder="Ej.: Enfermera" value={nuevoRol} /></div>
+                <Button disabled={!nuevoRol.trim() || isCreatingRol} onClick={() => void handleCreateRole()}>{isCreatingRol ? "Agregando..." : "Agregar rol"}</Button>
+              </div>
+            </div>
+          </Card>
+          <PermissionsMatrix
+            onToggle={(permissionKey, role, otorgado) =>
+              void handleToggle(permissionKey, role, otorgado)
+            }
+            permissions={permissions}
+            roles={roleNamesForMatrix}
+            savingKey={savingKey}
+          />
+        </>
       )}
     </div>
   );
