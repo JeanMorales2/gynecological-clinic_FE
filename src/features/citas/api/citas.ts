@@ -35,9 +35,10 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return payload as T;
 }
 
-export function listAppointments({ fecha, profesionalId, patientId, estado, page = 1, pageSize = 100 }: { fecha?: string; profesionalId?: string; patientId?: string; estado?: AppointmentStatus; page?: number; pageSize?: number }) {
+export function listAppointments({ fecha, desde, profesionalId, patientId, estado, page = 1, pageSize = 100 }: { fecha?: string; desde?: string; profesionalId?: string; patientId?: string; estado?: AppointmentStatus; page?: number; pageSize?: number }) {
   const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
   if (fecha) query.set("fecha", fecha);
+  if (desde) query.set("desde", desde);
   if (profesionalId) query.set("profesionalId", profesionalId);
   if (patientId) query.set("patientId", patientId);
   if (estado) query.set("estado", estado);
