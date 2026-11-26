@@ -11,16 +11,21 @@ function applyTheme(theme: ThemePreference) {
   else document.documentElement.dataset.theme = theme;
 }
 function getSavedTheme(): ThemePreference {
-  try { const saved = localStorage.getItem(THEME_STORAGE_KEY); return saved === "light" || saved === "dark" ? saved : "auto"; }
-  catch { return "auto"; }
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    // "auto" solo se respeta cuando el usuario lo eligio explicitamente (quedo guardado tal cual);
+    // si no hay nada guardado todavia, el default es "light", no seguir la preferencia del sistema.
+    if (saved === "light" || saved === "dark" || saved === "auto") return saved;
+    return "light";
+  } catch { return "light"; }
 }
 export function ThemeProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [theme, setCurrentTheme] = useState<ThemePreference>("auto");
+  const [theme, setCurrentTheme] = useState<ThemePreference>("light");
   useEffect(() => {
     // Lee localStorage solo después de montar (nunca en el server) para que el primer render
-    // del cliente siga coincidiendo con el server ("auto") y no dispare un mismatch de
-    // hidratación. El <html data-theme> real ya lo fija el script inline de layout.tsx antes
-    // de pintar; esto solo sincroniza el estado de React con ese valor ya aplicado.
+    // del cliente siga coincidiendo con el server ("light", el default) y no dispare un
+    // mismatch de hidratación. El <html data-theme> real ya lo fija el script inline de
+    // layout.tsx antes de pintar; esto solo sincroniza el estado de React con ese valor ya aplicado.
     const saved = getSavedTheme();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentTheme(saved);

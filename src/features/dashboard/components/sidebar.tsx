@@ -58,6 +58,11 @@ const themeLabel: Record<ThemePreference, string> = {
   dark: "Oscuro",
   auto: "Automático",
 };
+const themeButtonStyle: Record<ThemePreference, string> = {
+  light: "bg-amber-400/15 text-amber-500 hover:bg-amber-400/25",
+  dark: "bg-indigo-400/15 text-indigo-300 hover:bg-indigo-400/25",
+  auto: "text-text-secondary hover:bg-bg hover:text-text",
+};
 
 type SidebarProps = { className?: string; onNavigate?: () => void };
 export function Sidebar({ className = "", onNavigate }: SidebarProps) {
@@ -166,7 +171,7 @@ export function Sidebar({ className = "", onNavigate }: SidebarProps) {
           </button>
           <button
             aria-label={`Tema actual: ${themeLabel[theme]}. Cambiar tema.`}
-            className="rounded-lg p-2 text-text-secondary hover:bg-bg hover:text-text focus:outline-none focus:ring-2 focus:ring-primary"
+            className={`rounded-lg p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${themeButtonStyle[theme]}`}
             onClick={cycleTheme}
             title={`Tema: ${themeLabel[theme]}`}
             type="button"
