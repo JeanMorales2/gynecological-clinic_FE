@@ -12,7 +12,8 @@ function formatDate(value: string) { return dateFormatter.format(new Date(`${val
 
 function PatientSummary({ patient, latestEntry }: { patient: Patient; latestEntry: ClinicalEntry | null }) {
   return <Card title="Resumen del paciente">
-    <div className="grid gap-4 sm:grid-cols-2">
+    <p className="text-sm text-text-secondary">Tipo de sangre: <span className="font-semibold text-text">{patient.tipoSangre ?? "No registrado"}</span></p>
+    <div className="mt-4 grid gap-4 sm:grid-cols-2">
       <div><h4 className="text-sm font-semibold text-text">Antecedentes patológicos personales</h4><p className="mt-1 whitespace-pre-wrap text-sm text-text-secondary">{patient.antecedentesPatologicosPersonales ?? "No registrados"}</p></div>
       <div><h4 className="text-sm font-semibold text-text">Antecedentes patológicos familiares</h4><p className="mt-1 whitespace-pre-wrap text-sm text-text-secondary">{patient.antecedentesPatologicosFamiliares ?? "No registrados"}</p></div>
     </div>

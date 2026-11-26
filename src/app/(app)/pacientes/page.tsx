@@ -114,7 +114,7 @@ export default function Page() {
     <PageMessage message={actionError} />
     {loadError ? <><PageMessage message={loadError} /><Card><div className="space-y-3"><Button onClick={reload} variant="outline">Reintentar</Button></div></Card></> : null}
     {!loadError ? (isLoading ? <p className="text-sm text-text-secondary" role="status">Cargando pacientes...</p> : <PacientesTable isUpdatingId={isUpdatingId} onDeactivate={(patient) => void handleDeactivate(patient)} onEdit={openEditPatientModal} onNextPage={() => setPage((current) => Math.min(current + 1, totalPages))} onPreviousPage={() => setPage((current) => Math.max(current - 1, 1))} onReactivate={(patient) => void handleReactivate(patient)} page={result.page} pageSize={result.pageSize} patients={result.items} totalCount={result.totalCount} />) : null}
-    <Modal isOpen={isModalOpen} onClose={closeModal} title={editingPatient ? "Editar paciente" : "Nuevo paciente"}>
+    <Modal isOpen={isModalOpen} onClose={closeModal} size="xl" title={editingPatient ? "Editar paciente" : "Nuevo paciente"}>
       <PacienteForm isSubmitting={isSubmitting} key={editingPatient?.id ?? "new"} onCancel={() => void closeModal()} onDirtyChange={setIsFormDirty} onSubmit={handleSubmit} patient={editingPatient} submitError={formError} />
     </Modal>
   </div>;

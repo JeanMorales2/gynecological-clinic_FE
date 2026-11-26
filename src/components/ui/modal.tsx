@@ -3,6 +3,8 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { Icon } from "./icon";
 
+export type ModalSize = "md" | "lg" | "xl";
+
 export type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -10,11 +12,17 @@ export type ModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   overlayClassName?: string;
+  size?: ModalSize;
 };
 
 const focusableSelector = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
+const sizeClassName: Record<ModalSize, string> = {
+  md: "max-w-lg",
+  lg: "max-w-2xl",
+  xl: "max-w-4xl",
+};
 
-export function Modal({ children, footer, isOpen, onClose, overlayClassName = "", title }: ModalProps) {
+export function Modal({ children, footer, isOpen, onClose, overlayClassName = "", size = "md", title }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
@@ -69,7 +77,7 @@ export function Modal({ children, footer, isOpen, onClose, overlayClassName = ""
       <div
         aria-labelledby={titleId}
         aria-modal="true"
-        className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-surface shadow-xl outline-none"
+        className={`max-h-[calc(100vh-2rem)] w-full ${sizeClassName[size]} overflow-y-auto rounded-xl border border-border bg-surface shadow-xl outline-none`}
         onKeyDown={handleKeyDown}
         ref={dialogRef}
         role="dialog"

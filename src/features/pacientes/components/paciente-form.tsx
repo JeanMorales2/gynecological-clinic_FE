@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { Badge, Button, Icon, Input, Select, Tabs, useConfirmDialog } from "@/components/ui";
+import { useState, type FormEvent } from "react";
+import { Badge, Button, Icon, Input, Select, Tabs } from "@/components/ui";
 import { todayInClinicTimezone } from "@/lib/dates";
-import { addFamilyMedicalHistory, listFamilyMedicalHistory, PacientesApiError, removeFamilyMedicalHistory, type FamilyMedicalHistory, type Patient, type PatientInput } from "../api";
+import type { Patient, PatientInput } from "../api";
 
 type ReferidoInput = {
   nombreCompleto: string;
@@ -21,7 +21,6 @@ type PacienteFormProps = {
 };
 
 export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, patient, submitError }: PacienteFormProps) {
-  const { confirm } = useConfirmDialog();
   const [nombreCompleto, setNombreCompleto] = useState(patient?.nombreCompleto ?? "");
   const [fechaNacimiento, setFechaNacimiento] = useState(patient?.fechaNacimiento ?? "");
   const [telefono, setTelefono] = useState(patient?.telefono ?? "");
@@ -43,11 +42,6 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
   const [partos, setPartos] = useState(patient?.partos?.toString() ?? "");
   const [cesareas, setCesareas] = useState(patient?.cesareas?.toString() ?? "");
   const [abortos, setAbortos] = useState(patient?.abortos?.toString() ?? "");
-  const [familyMedicalHistories, setFamilyMedicalHistories] = useState<FamilyMedicalHistory[]>([]);
-  const [familyMedicalHistoryCondicion, setFamilyMedicalHistoryCondicion] = useState("");
-  const [familyMedicalHistoryParentesco, setFamilyMedicalHistoryParentesco] = useState("");
-  const [familyMedicalHistoryError, setFamilyMedicalHistoryError] = useState("");
-  const [isSavingFamilyMedicalHistory, setIsSavingFamilyMedicalHistory] = useState(false);
   const [referido1NombreCompleto, setReferido1NombreCompleto] = useState("");
   const [referido1Telefono, setReferido1Telefono] = useState("");
   const [referido1TelefonoAlternativo, setReferido1TelefonoAlternativo] = useState("");
@@ -55,15 +49,6 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
   const [referido2Telefono, setReferido2Telefono] = useState("");
   const [referido2TelefonoAlternativo, setReferido2TelefonoAlternativo] = useState("");
   const [validationError, setValidationError] = useState("");
-
-  useEffect(() => {
-    if (!patient) return;
-    let isCurrent = true;
-    void listFamilyMedicalHistory(patient.id)
-      .then((items) => { if (isCurrent) setFamilyMedicalHistories(items); })
-      .catch((reason) => { if (isCurrent) setFamilyMedicalHistoryError(reason instanceof PacientesApiError ? reason.message : "No se pudieron cargar los antecedentes familiares."); });
-    return () => { isCurrent = false; };
-  }, [patient]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,37 +89,6 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
       telefonoAlternativo: referido.telefonoAlternativo.trim() || null,
     })) : undefined;
     await onSubmit(values, referidos);
-  }
-
-  async function addFamilyHistory() {
-    if (!patient) return;
-    if (!familyMedicalHistoryCondicion.trim() || !familyMedicalHistoryParentesco.trim()) {
-      setFamilyMedicalHistoryError("Completá condición y parentesco.");
-      return;
-    }
-    setFamilyMedicalHistoryError("");
-    setIsSavingFamilyMedicalHistory(true);
-    try {
-      const created = await addFamilyMedicalHistory(patient.id, { condicion: familyMedicalHistoryCondicion.trim(), parentesco: familyMedicalHistoryParentesco.trim() });
-      setFamilyMedicalHistories((items) => [...items, created]);
-      setFamilyMedicalHistoryCondicion("");
-      setFamilyMedicalHistoryParentesco("");
-    } catch (reason) {
-      setFamilyMedicalHistoryError(reason instanceof PacientesApiError ? reason.message : "No se pudo agregar el antecedente familiar.");
-    } finally {
-      setIsSavingFamilyMedicalHistory(false);
-    }
-  }
-
-  async function deleteFamilyHistory(history: FamilyMedicalHistory) {
-    if (!patient || !(await confirm(`¿Eliminar el antecedente familiar \"${history.condicion}\"?`, { danger: true, confirmLabel: "Eliminar" }))) return;
-    setFamilyMedicalHistoryError("");
-    try {
-      await removeFamilyMedicalHistory(patient.id, history.id);
-      setFamilyMedicalHistories((items) => items.filter((item) => item.id !== history.id));
-    } catch (reason) {
-      setFamilyMedicalHistoryError(reason instanceof PacientesApiError ? reason.message : "No se pudo eliminar el antecedente familiar.");
-    }
   }
 
   const error = validationError || submitError;
@@ -199,19 +153,6 @@ export function PacienteForm({ isSubmitting, onCancel, onDirtyChange, onSubmit, 
           </label>
         </div>,
       },
-      ...(patient ? [{
-        label: "Antecedentes familiares",
-        value: "antecedentes-familiares",
-        content: <div className="space-y-4">
-          {familyMedicalHistoryError ? <p className="text-sm text-danger" role="alert">{familyMedicalHistoryError}</p> : null}
-          {familyMedicalHistories.length === 0 ? <p className="text-sm text-text-secondary">No hay antecedentes familiares registrados.</p> : <div className="space-y-2">{familyMedicalHistories.map((history) => <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3" key={history.id}><span className="text-sm text-text">{history.condicion} <span className="text-text-secondary">({history.parentesco})</span></span><Button onClick={() => void deleteFamilyHistory(history)} size="sm" type="button" variant="outline">Eliminar</Button></div>)}</div>}
-          <div className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-            <Input label="Condición" onChange={(event) => setFamilyMedicalHistoryCondicion(event.target.value)} value={familyMedicalHistoryCondicion} />
-            <Input label="Parentesco" onChange={(event) => setFamilyMedicalHistoryParentesco(event.target.value)} value={familyMedicalHistoryParentesco} />
-            <Button disabled={isSavingFamilyMedicalHistory} onClick={() => void addFamilyHistory()} type="button">{isSavingFamilyMedicalHistory ? "Agregando..." : "Agregar"}</Button>
-          </div>
-        </div>,
-      }] : []),
       ...(!patient ? [{
         label: "Personas referidas",
         value: "referidos",
